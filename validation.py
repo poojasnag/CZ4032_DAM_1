@@ -304,8 +304,8 @@ if __name__ == "__main__":
     # test_data_path = 'datasets/breast-w.data'
     # test_scheme_path = 'datasets/breast-w.names'
 
-    test_data_path = 'datasets/tic-tac-toe.data'
-    test_scheme_path = 'datasets/tic-tac-toe.names'
+    test_data_path = 'datasets/breast-w.data'
+    test_scheme_path = 'datasets/breast-w.names'
 
     # just choose one mode to experiment by removing one line comment and running
     # cross_validate_m1_without_prune(test_data_path, test_scheme_path)
