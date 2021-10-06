@@ -1,0 +1,2 @@
+fever,bodyPain,age,runnyNose,diffBreath,infectionProb
+numerical,categorical,numerical,categorical,categorical,label
