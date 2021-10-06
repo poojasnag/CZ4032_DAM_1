@@ -12,6 +12,8 @@ Reference:
     1. http://cgi.csc.liv.ac.uk/~frans/KDD/Software/LUCS-KDD-DN/lucs-kdd_DN.html
 """
 import rmep
+import numpy as np
+import pandas as pd
 
 
 # Identify the mode of a list, both effective for numerical and categorical list. When there exists too many modes
@@ -47,11 +49,18 @@ def fill_missing_values(data, column_no):
 # Get the list needed by rmep.py, just glue the data column with class column.
 # data_column: the data column
 # class_column: the class label column
-def get_discretization_data(data_column, class_column):
+# def get_discretization_data(data_column, class_column):
+#     size = len(data_column)
+#     result_list = []
+#     for i in range(size):
+#         result_list.append([data_column[i], class_column[i]])
+#     return result_list
+
+def get_discretization_data(data_column):
     size = len(data_column)
     result_list = []
     for i in range(size):
-        result_list.append([data_column[i], class_column[i]])
+        result_list.append(data_column[i])
     return result_list
 
 
@@ -59,17 +68,24 @@ def get_discretization_data(data_column, class_column):
 # data: original data table
 # column_no: the column No. of that column
 # walls: the split point of the whole range
-def replace_numerical(data, column_no, walls):
+# def replace_numerical(data, column_no, walls):
+#     size = len(data)
+#     num_spilt_point = len(walls)
+#     for i in range(size):
+#         if data[i][column_no] > walls[num_spilt_point - 1]:
+#             data[i][column_no] = num_spilt_point + 1
+#             continue
+#         for j in range(0, num_spilt_point):
+#             if data[i][column_no] <= walls[j]:
+#                 data[i][column_no] = j + 1
+#                 break
+#     return data
+
+def replace_numerical(data, list_data, column_no):
     size = len(data)
-    num_spilt_point = len(walls)
+    new_list = list(pd.cut(list_data, 4, labels=False))
     for i in range(size):
-        if data[i][column_no] > walls[num_spilt_point - 1]:
-            data[i][column_no] = num_spilt_point + 1
-            continue
-        for j in range(0, num_spilt_point):
-            if data[i][column_no] <= walls[j]:
-                data[i][column_no] = j + 1
-                break
+        data[i][column_no] = new_list[i]
     return data
 
 
@@ -128,17 +144,19 @@ def pre_process(data, attribute, value_type):
 
         # discretization
         if value_type[i] == 'numerical':
-            discretization_data = get_discretization_data(data_column, class_column)
-            block = rmep.Block(discretization_data)
-            walls = rmep.partition(block)
-            if len(walls) == 0:
-                max_value = max(data_column)
-                min_value = min(data_column)
-                step = (max_value - min_value) / 3
-                walls.append(min_value + step)
-                walls.append(min_value + 2 * step)
-            print(attribute[i] + ":", walls)        # print out split points
-            data = replace_numerical(data, i, walls)
+            # discretization_data = get_discretization_data(data_column, class_column)
+            # block = rmep.Block(discretization_data)
+            # walls = rmep.partition(block)
+            # if len(walls) == 0:
+            #     max_value = max(data_column)
+            #     min_value = min(data_column)
+            #     step = (max_value - min_value) / 3
+            #     walls.append(min_value + step)
+            #     walls.append(min_value + 2 * step)
+            # print(attribute[i] + ":", walls)        # print out split points
+            # data = replace_numerical(data, i, walls)
+            list_data = get_discretization_data(data_column)
+            replace_numerical(data,list_data,i)
         elif value_type[i] == 'categorical':
             data, classes_no = replace_categorical(data, i)
             print(attribute[i] + ":", classes_no)   # print out replacement list
