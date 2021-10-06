@@ -7,7 +7,7 @@ Author: CBA Studio
 Reference: https://www.cs.uic.edu/~hxiao/courses/cs594-slides.pdf
 """
 import ruleitem
-
+import pre_processing 
 
 class FrequentRuleitems:
     """
@@ -187,13 +187,14 @@ def rule_generator(dataset, minsup, minconf):
     car = Car()
 
     # get large 1-ruleitems and generate rules
-    class_label = set([x[-1] for x in dataset])
+    class_label = set([x[-2] for x in dataset])
     for column in range(0, len(dataset[0])-1):  # range(4) each col is a feature
         distinct_value = set([x[column] for x in dataset])  # {1,2,3}
         for value in distinct_value:
             cond_set = {column: value}
             for classes in class_label:
                 rule_item = ruleitem.RuleItem(cond_set, classes, dataset)
+                minsup = int(x[-1] for x in dataset)
                 if rule_item.support >= minsup:
                     frequent_ruleitems.add(rule_item)
 

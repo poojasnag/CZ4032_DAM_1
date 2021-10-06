@@ -160,7 +160,7 @@ def get_error_rate(classifier, dataset, pred_labels=[]):
 
 
 # # 10-fold cross-validations on CBA (M2) without pruning
-def cross_validate_m2_without_prune(data_path, scheme_path, minsup=0.01, minconf=0.5):
+def cross_validate_m2_without_prune(data_path, scheme_path, minsup, minconf=0.5):
     data, attributes, value_type = read(data_path, scheme_path)
     random.Random(1).shuffle(data)
     dataset = pre_process(data, attributes, value_type)
@@ -304,15 +304,14 @@ if __name__ == "__main__":
     # test_data_path = 'datasets/breast-w.data'
     # test_scheme_path = 'datasets/breast-w.names'
 
-    test_data_path = 'datasets/breast-w.data'
-    test_scheme_path = 'datasets/breast-w.names'
+    test_data_path = 'datasets/iris.data'
+    test_scheme_path = 'datasets/iris.names'
 
     # just choose one mode to experiment by removing one line comment and running
     # cross_validate_m1_without_prune(test_data_path, test_scheme_path)
     # cross_validate_m1_with_prune(test_data_path, test_scheme_path)
     # cross_validate_m2_without_prune(test_data_path, test_scheme_path)
     cross_validate_m2_with_prune(test_data_path, test_scheme_path)
-
 
     # breast cancer - winsconsin
     # classes: 2 for benign, 4 for malignant
