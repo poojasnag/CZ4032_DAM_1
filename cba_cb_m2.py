@@ -10,9 +10,55 @@ Output: a classifier
 Author: CBA Studio
 """
 import ruleitem
-import cba_cb_m1
 from functools import cmp_to_key
 
+def is_satisfy(datacase, rule, from_error=False):
+    if from_error:
+        print("datacase", datacase[-1])
+        print(rule.class_label)
+    # print("rule.cond_set",rule.cond_set)
+    for item in rule.cond_set:  # item = key of condset
+        # print("datacase",datacase)
+        # print('datacase[item]',datacase[item], "rule.cond_set[item]", rule.cond_set[item])
+        if datacase[item] != rule.cond_set[item]:  # check if datacase values match that of the rule's cond_set
+            return None
+    if datacase[-1] == rule.class_label:
+        return True
+    else:
+        return False
+
+# def is_satisfy(datacase, rule):
+#     for item in rule.cond_set:
+#         if datacase[item] != rule.cond_set[item]:
+#             return None
+#     if datacase[-1] == rule.class_label:
+#         return True
+#     else:
+#         return False
+
+# sort the set of generated rules car according to the relation ">", return the sorted rule list
+def sort(car):
+    def cmp_method(a, b):
+        if a.confidence < b.confidence:     # 1. the confidence of ri > rj
+            return 1
+        elif a.confidence == b.confidence:
+            if a.support < b.support:       # 2. their confidences are the same, but support of ri > rj
+                return 1
+            elif a.support == b.support:
+                if len(a.cond_set) < len(b.cond_set):   # 3. both confidence & support are the same, ri earlier than rj
+                    return -1
+                elif len(a.cond_set) == len(b.cond_set):
+                    return 0
+                else:
+                    return 1
+            else:
+                return -1
+        else:
+            return -1
+
+    rule_list = list(car.rules)
+    rule_list.sort(key=cmp_to_key(cmp_method))
+    return rule_list
 
 class Classifier_m2:
     """
@@ -73,7 +119,7 @@ def ruleitem2rule(rule_item, dataset):
 def maxCoverRule_correct(cars_list, data_case):
     for i in range(len(cars_list)):
         if cars_list[i].class_label == data_case[-1]:
-            if cba_cb_m1.is_satisfy(data_case, cars_list[i]):
+            if is_satisfy(data_case, cars_list[i]):
                 return i
     return None
 
@@ -84,7 +130,7 @@ def maxCoverRule_wrong(cars_list, data_case):
         if cars_list[i].class_label != data_case[-1]:
             temp_data_case = data_case[:-1]
             temp_data_case.append(cars_list[i].class_label)
-            if cba_cb_m1.is_satisfy(temp_data_case, cars_list[i]):
+            if is_satisfy(temp_data_case, cars_list[i]):
                 return i
     return None
 
@@ -124,7 +170,7 @@ def allCoverRules(u, data_case, c_rule, cars_list):
         # have higher precedences than cRule
         if compare(cars_list[rule_index], c_rule) > 0:
             # wrongly classify the data case
-            if cba_cb_m1.is_satisfy(data_case, cars_list[rule_index]) == False:
+            if is_satisfy(data_case, cars_list[rule_index]) == False:
                 w_set.add(rule_index)
     return w_set
 
@@ -180,7 +226,7 @@ def errorsOfRule(rule, dataset):
     error_number = 0
     for case in dataset:
         if case:
-            if cba_cb_m1.is_satisfy(case, rule) == False:
+            if is_satisfy(case, rule) == False:
                 error_number += 1
     return error_number
 
@@ -216,7 +262,7 @@ def defErr(default_class, class_distribution):
 def classifier_builder_m2(cars, dataset):
     classifier = Classifier_m2()
 
-    cars_list = cba_cb_m1.sort(cars)
+    cars_list = sort(cars)
     for i in range(len(cars_list)):
         cars_list[i] = ruleitem2rule(cars_list[i], dataset)
 
@@ -272,7 +318,7 @@ def classifier_builder_m2(cars, dataset):
             for i in range(len(dataset)):
                 datacase = dataset[i]
                 if datacase:
-                    is_satisfy_value = cba_cb_m1.is_satisfy(datacase, cars_list[r_index])
+                    is_satisfy_value = is_satisfy(datacase, cars_list[r_index])
                     if is_satisfy_value:
                         dataset[i] = []
                         data_cases_covered[i] = True
