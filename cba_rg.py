@@ -85,12 +85,12 @@ class Car:
     # prune rules
     def prune_rules(self, dataset):
         for rule in self.rules:
-            # pruned_rule = prune(rule, dataset)  # return object
-            pruner = Prune(rule, dataset)
-            pruner.find_prune_rule(rule)
-            pruned_rule = pruner.pruned_rule
-            print("pruned_rule", pruned_rule)
-            print("class_label", pruned_rule.class_label)
+            pruned_rule = prune(rule, dataset)  # return object
+            # pruner = Prune(rule, dataset)
+            # pruner.find_prune_rule(rule)
+            # pruned_rule = pruner.pruned_rule
+            # print("pruned_rule", pruned_rule)
+            # print("class_label", pruned_rule.class_label)
 
             is_existed = False
             for rule in self.pruned_rules:

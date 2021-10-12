@@ -15,7 +15,6 @@ from cba_cb_m2 import classifier_builder_m2, is_satisfy
 import time
 import random
 
-
 # calculate the error rate of the classifier on the dataset
 def get_error_rate(classifier, dataset, pred_labels=[]):
     size = len(dataset)
@@ -159,63 +158,69 @@ def get_error_rate(classifier, dataset, pred_labels=[]):
 #     print("Average No. of rules in classifier of CBA-CB M1 with pruning: %d" % int(total_classifier_rule_num / 10))
 
 
-# # 10-fold cross-validations on CBA (M2) without pruning
-def cross_validate_m2_without_prune(data_path, scheme_path, minsup=0.01, minconf=0.5):
-    data, attributes, value_type = read(data_path, scheme_path)
-    random.Random(1).shuffle(data)
-    dataset = pre_process(data, attributes, value_type)
 
-    block_size = int(len(dataset) / 10)
-    split_point = [k * block_size for k in range(0, 10)]
-    split_point.append(len(dataset))
+# # # 10-fold cross-validations on CBA (M2) without pruning
+# def cross_validate_m2_without_prune(data_path, scheme_path, minsup=0.01, minconf=0.5):
+#     data, attributes, value_type = read(data_path, scheme_path)
+#     random.Random(1).shuffle(data)
+#     dataset = pre_process(data, attributes, value_type)
 
-    cba_rg_total_runtime = 0
-    cba_cb_total_runtime = 0
-    total_car_number = 0
-    total_classifier_rule_num = 0
-    error_total_rate = 0
-    ground_truth_labels = [data[-1] for data in dataset]
-    pred_labels = []
+#     block_size = int(len(dataset) / 10)
+#     split_point = [k * block_size for k in range(0, 10)]
+#     split_point.append(len(dataset))
 
-    for k in range(len(split_point)-1):
-        print("\nRound %d:" % k)
+#     cba_rg_total_runtime = 0
+#     cba_cb_total_runtime = 0
+#     total_car_number = 0
+#     total_classifier_rule_num = 0
+#     error_total_rate = 0
+#     ground_truth_labels = [data[-1] for data in dataset]
+#     pred_labels = []
 
-        training_dataset = dataset[:split_point[k]] + dataset[split_point[k+1]:]
-        test_dataset = dataset[split_point[k]:split_point[k+1]]
+#     for k in range(len(split_point)-1):
+#         print("\nRound %d:" % k)
 
-        start_time = time.time()
-        cars = rule_generator(training_dataset, minsup, minconf)
-        end_time = time.time()
-        cba_rg_runtime = end_time - start_time
-        cba_rg_total_runtime += cba_rg_runtime
+#         training_dataset = dataset[:split_point[k]] + dataset[split_point[k+1]:]
+#         test_dataset = dataset[split_point[k]:split_point[k+1]]
 
-        start_time = time.time()
-        classifier_m2 = classifier_builder_m2(cars, training_dataset)
-        end_time = time.time()
-        cba_cb_runtime = end_time - start_time
-        cba_cb_total_runtime += cba_cb_runtime
+#         start_time = time.time()
+#         cars = rule_generator(training_dataset, minsup, minconf)
+#         end_time = time.time()
+#         cba_rg_runtime = end_time - start_time
+#         cba_rg_total_runtime += cba_rg_runtime
 
-        error_rate = get_error_rate(classifier_m2, test_dataset, pred_labels)
-        error_total_rate += error_rate
+#         start_time = time.time()
+#         classifier_m2 = classifier_builder_m2(cars, training_dataset)
+#         end_time = time.time()
+#         cba_cb_runtime = end_time - start_time
+#         cba_cb_total_runtime += cba_cb_runtime
 
-        total_car_number += len(cars.rules)
-        total_classifier_rule_num += len(classifier_m2.rule_list)
+#         error_rate = get_error_rate(classifier_m2, test_dataset, pred_labels)
+#         error_total_rate += error_rate
 
-        print("CBA's error rate without pruning: %.1lf%%" % (error_rate * 100))
-        print("No. of CARs without pruning: %d" % len(cars.rules))
-        print("CBA-RG's run time without pruning: %.2lf s" % cba_rg_runtime)
-        print("CBA-CB M2's run time without pruning: %.2lf s" % cba_cb_runtime)
-        print("No. of rules in classifier of CBA-CB M2 without pruning: %d" % len(classifier_m2.rule_list))
+#         total_car_number += len(cars.rules)
+#         total_classifier_rule_num += len(classifier_m2.rule_list)
 
-    print("\nAverage CBA's error rate without pruning: %.1lf%%" % (error_total_rate / 10 * 100))
-    print("Average No. of CARs without pruning: %d" % int(total_car_number / 10))
-    print("Average CBA-RG's run time without pruning: %.2lf s" % (cba_rg_total_runtime / 10))
-    print("Average CBA-CB M2's run time without pruning: %.2lf s" % (cba_cb_total_runtime / 10))
-    print("Average No. of rules in classifier of CBA-CB M2 without pruning: %d" % int(total_classifier_rule_num / 10))
-    print('ground truth: ', ground_truth_labels)
-    print('\n\n ')
-    print('pred ', pred_labels)
-    print(len(ground_truth_labels), len(pred_labels))
+#         print("CBA's error rate without pruning: %.1lf%%" % (error_rate * 100))
+#         print("No. of CARs without pruning: %d" % len(cars.rules))
+#         print("CBA-RG's run time without pruning: %.2lf s" % cba_rg_runtime)
+#         print("CBA-CB M2's run time without pruning: %.2lf s" % cba_cb_runtime)
+#         print("No. of rules in classifier of CBA-CB M2 without pruning: %d" % len(classifier_m2.rule_list))
+
+#     print("\nAverage CBA's error rate without pruning: %.1lf%%" % (error_total_rate / 10 * 100))
+#     print("Average No. of CARs without pruning: %d" % int(total_car_number / 10))
+#     print("Average CBA-RG's run time without pruning: %.2lf s" % (cba_rg_total_runtime / 10))
+#     print("Average CBA-CB M2's run time without pruning: %.2lf s" % (cba_cb_total_runtime / 10))
+#     print("Average No. of rules in classifier of CBA-CB M2 without pruning: %d" % int(total_classifier_rule_num / 10))
+#     print('ground truth: ', ground_truth_labels)
+#     print('\n\n ')
+#     print('pred ', pred_labels)
+#     print(len(ground_truth_labels), len(pred_labels))
+
+
+# class CrossValM2Prune:
+#     def __init__(self, data_path, scheme_path):
+
 
 #######################################################################################################################################################
 
@@ -294,23 +299,16 @@ def cross_validate_m2_with_prune(data_path, scheme_path, minsup=0.01, minconf=0.
     print('\n\n')
     print('pred: ', pred_labels)
     print(len(pred_labels))
-    # print('total_test', total_test)
-    # print('total_trng', total_trng)
 
 
 # test entry goes here
 if __name__ == "__main__":
     # using the relative path, all data sets are stored in datasets directory
-    # test_data_path = 'datasets/breast-w.data'
-    # test_scheme_path = 'datasets/breast-w.names'
 
-    test_data_path = 'datasets/breast-w.data'
-    test_scheme_path = 'datasets/breast-w.names'
+    test_data_path = 'datasets/iris.data'
+    test_scheme_path = 'datasets/iris.names'
 
     # just choose one mode to experiment by removing one line comment and running
-    # cross_validate_m1_without_prune(test_data_path, test_scheme_path)
-    # cross_validate_m1_with_prune(test_data_path, test_scheme_path)
-    # cross_validate_m2_without_prune(test_data_path, test_scheme_path)
     cross_validate_m2_with_prune(test_data_path, test_scheme_path)
 
 
