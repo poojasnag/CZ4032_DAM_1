@@ -10,13 +10,16 @@ data = pd.read_csv('datasets/iris.data', names = header)
 y = pd.DataFrame(data["class"])
 X = pd.DataFrame(data[header[:-1]])
 
-from sklearn.ensemble import RandomForestClassifier
+# Import Decision Tree Classifier model from Scikit-Learn
+from sklearn.tree import DecisionTreeClassifier
 
-rforest = RandomForestClassifier(random_state=2)  
+# Create a Decision Tree Classifier object
+dectree = DecisionTreeClassifier(random_state=2)
 
 # Fit Random Forest on data
-rforest.fit(X, y.values.ravel())
+dectree.fit(X, y)
 
-y_pred = rforest.predict(X)
-scores = cross_val_score(rforest, X, y.values.ravel(), cv=10)
+y_pred = dectree.predict(X)
+scores = cross_val_score(dectree, X, y, cv=10)
+
 print("average accuracy after 10-fold CV: ", scores.mean())
