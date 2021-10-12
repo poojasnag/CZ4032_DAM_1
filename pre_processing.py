@@ -11,7 +11,6 @@ Author: CBA Studio
 Reference:
     1. http://cgi.csc.liv.ac.uk/~frans/KDD/Software/LUCS-KDD-DN/lucs-kdd_DN.html
 """
-import rmep
 import numpy as np
 import pandas as pd
 
@@ -20,15 +19,13 @@ import pandas as pd
 #   having the same frequency, return the first one.
 # arr: a list need to find mode
 def get_mode(arr):
-    mode = []
     arr_appear = dict((a, arr.count(a)) for a in arr)   # count appearance times of each key
     if max(arr_appear.values()) == 1:       # if max time is 1
         return      # no mode here
     else:
         for k, v in arr_appear.items():     # else, mode is the number which has max time
             if v == max(arr_appear.values()):
-                mode.append(k)
-    return mode[0]  # return first number if has many modes
+                return k  # return first number if has many modes
 
 
 # Fill missing values in column column_no, when missing values ration below 50%.
