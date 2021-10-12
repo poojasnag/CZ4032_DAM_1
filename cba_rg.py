@@ -108,20 +108,18 @@ class Car:
             self._add(item, minsup, minconf)
 
 class Prune:
-
     def __init__(self, initial_rule, dataset):
         self.dataset = dataset
         self.min_rule_error = sys.maxsize
         self.pruned_rule = initial_rule
-
 
     def errors_of_rule(self, r):  # input rule
         import cba_cb_m2
 
         errors_number = 0
         for case in self.dataset:
-            # if cba_cb_m2.is_satisfy(case, r) == False:
-            if not cba_cb_m2.is_satisfy(case, r):
+            if cba_cb_m2.is_satisfy(case, r) == False:
+            # if not cba_cb_m2.is_satisfy(case, r):
                 errors_number += 1
         return errors_number
   # prune rule recursively
@@ -144,72 +142,35 @@ class Prune:
                     if len(temp_cond_set) >= 2:
                         self.find_prune_rule(temp_rule)
 
-
-# # try to prune rule
-# def prune(rule, dataset):
-#     import sys
-#     min_rule_error = sys.maxsize
-#     pruned_rule = rule
-
-#     # prune rule recursively
-#     def find_prune_rule(this_rule):
-#         nonlocal min_rule_error
-#         nonlocal pruned_rule
-
-#         # calculate how many errors the rule r make in the dataset
-#         def errors_of_rule(r):
-#             import cba_cb_m2
-
-#             errors_number = 0
-#             for case in dataset:
-#                 if cba_cb_m2.is_satisfy(case, r) == False:
-#                     errors_number += 1
-#             return errors_number
-
-#         rule_error = errors_of_rule(this_rule)
-#         if rule_error < min_rule_error:
-#             min_rule_error = rule_error
-#             pruned_rule = this_rule
-#         this_rule_cond_set = list(this_rule.cond_set)
-#         if len(this_rule_cond_set) >= 2:
-#             for attribute in this_rule_cond_set:
-#                 temp_cond_set = dict(this_rule.cond_set)
-#                 temp_cond_set.pop(attribute)
-#                 temp_rule = ruleitem.RuleItem(temp_cond_set, this_rule.class_label, dataset)
-#                 temp_rule_error = errors_of_rule(temp_rule)
-#                 if temp_rule_error <= min_rule_error:
-#                     min_rule_error = temp_rule_error
-#                     pruned_rule = temp_rule
-#                     if len(temp_cond_set) >= 2:
-#                         find_prune_rule(temp_rule)
-
-#     find_prune_rule(rule)
-#     return pruned_rule
-
-
 # invoked by candidate_gen, join two items to generate candidate
 def join(item1, item2, dataset):
     if item1.class_label != item2.class_label:
         return None
-    category1 = set(item1.cond_set)
-    category2 = set(item2.cond_set)
+    category1 = item1.cond_set.items()  #set(item1.cond_set)
+    category2 = item2.cond_set.items() # set(item2.cond_set)
+    print('item1.cond_set', item1.cond_set)
+    print('cat_1----------------------', category1)
     if category1 == category2:
         return None
-    intersect = category1 & category2
-    for item in intersect:
-        if item1.cond_set[item] != item2.cond_set[item]:
-            return None
-    category = category1 | category2
-    new_cond_set = dict()
-    for item in category:
-        if item in category1:
-            new_cond_set[item] = item1.cond_set[item]
-        else:
-            new_cond_set[item] = item2.cond_set[item]
+
+    intersect = dict(category1 & category2)
+    if not intersect: return None
+    # intersect = category1 & category2
+    # for item in intersect:
+    #     if item1.cond_set[item] != item2.cond_set[item]:
+    #         return None
+    # category = category1 | category2
+    new_cond_set = dict(category1 | category2)
+    # new_cond_set = dict()
+    # for item in category:
+    #     if item in category1:
+    #         new_cond_set[item] = item1.cond_set[item]
+    #     else:
+    #         new_cond_set[item] = item2.cond_set[item]
     new_ruleitem = ruleitem.RuleItem(new_cond_set, item1.class_label, dataset)
     return new_ruleitem
 
-
+# TODO: replace this!!!
 # similar to Apriori-gen in algorithm Apriori
 def candidate_gen(frequent_ruleitems, dataset):
     returned_frequent_ruleitems = FrequentRuleitems()
@@ -229,6 +190,8 @@ def rule_generator(dataset, minsup, minconf):
     frequent_ruleitems = FrequentRuleitems()
     car = Car()
 
+    # FIRST SCAN (C1)
+    # TODO: Separate out this part
     # get large 1-ruleitems and generate rules
     class_label = set([x[-1] for x in dataset])
     for column in range(0, len(dataset[0])-1):  # range(4) each col is a feature
@@ -239,7 +202,7 @@ def rule_generator(dataset, minsup, minconf):
                 rule_item = ruleitem.RuleItem(cond_set, classes, dataset)
                 if rule_item.support >= minsup:
                     frequent_ruleitems.add(rule_item)
-
+    # L1
     car.gen_rules(frequent_ruleitems, minsup, minconf)
     cars = car
 
