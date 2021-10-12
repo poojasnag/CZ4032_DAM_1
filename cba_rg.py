@@ -85,12 +85,12 @@ class Car:
     # prune rules
     def prune_rules(self, dataset):
         for rule in self.rules:
-            # pruned_rule = prune(rule, dataset)  # return object
-            pruner = Prune(rule, dataset)
-            pruner.find_prune_rule(rule)
-            pruned_rule = pruner.pruned_rule
-            print("pruned_rule", pruned_rule)
-            print("class_label", pruned_rule.class_label)
+            pruned_rule = prune(rule, dataset)  # return object
+            # pruner = Prune(rule, dataset)
+            # pruner.find_prune_rule(rule)
+            # pruned_rule = pruner.pruned_rule
+            # print("pruned_rule", pruned_rule)
+            # print("class_label", pruned_rule.class_label)
 
             is_existed = False
             for rule in self.pruned_rules:
@@ -146,45 +146,45 @@ class Prune:
 
 
 # # try to prune rule
-# def prune(rule, dataset):
-#     import sys
-#     min_rule_error = sys.maxsize
-#     pruned_rule = rule
+def prune(rule, dataset):
+    import sys
+    min_rule_error = sys.maxsize
+    pruned_rule = rule
 
-#     # prune rule recursively
-#     def find_prune_rule(this_rule):
-#         nonlocal min_rule_error
-#         nonlocal pruned_rule
+    # prune rule recursively
+    def find_prune_rule(this_rule):
+        nonlocal min_rule_error
+        nonlocal pruned_rule
 
-#         # calculate how many errors the rule r make in the dataset
-#         def errors_of_rule(r):
-#             import cba_cb_m2
+        # calculate how many errors the rule r make in the dataset
+        def errors_of_rule(r):
+            import cba_cb_m2
 
-#             errors_number = 0
-#             for case in dataset:
-#                 if cba_cb_m2.is_satisfy(case, r) == False:
-#                     errors_number += 1
-#             return errors_number
+            errors_number = 0
+            for case in dataset:
+                if cba_cb_m2.is_satisfy(case, r) == False:
+                    errors_number += 1
+            return errors_number
 
-#         rule_error = errors_of_rule(this_rule)
-#         if rule_error < min_rule_error:
-#             min_rule_error = rule_error
-#             pruned_rule = this_rule
-#         this_rule_cond_set = list(this_rule.cond_set)
-#         if len(this_rule_cond_set) >= 2:
-#             for attribute in this_rule_cond_set:
-#                 temp_cond_set = dict(this_rule.cond_set)
-#                 temp_cond_set.pop(attribute)
-#                 temp_rule = ruleitem.RuleItem(temp_cond_set, this_rule.class_label, dataset)
-#                 temp_rule_error = errors_of_rule(temp_rule)
-#                 if temp_rule_error <= min_rule_error:
-#                     min_rule_error = temp_rule_error
-#                     pruned_rule = temp_rule
-#                     if len(temp_cond_set) >= 2:
-#                         find_prune_rule(temp_rule)
+        rule_error = errors_of_rule(this_rule)
+        if rule_error < min_rule_error:
+            min_rule_error = rule_error
+            pruned_rule = this_rule
+        this_rule_cond_set = list(this_rule.cond_set)
+        if len(this_rule_cond_set) >= 2:
+            for attribute in this_rule_cond_set:
+                temp_cond_set = dict(this_rule.cond_set)
+                temp_cond_set.pop(attribute)
+                temp_rule = ruleitem.RuleItem(temp_cond_set, this_rule.class_label, dataset)
+                temp_rule_error = errors_of_rule(temp_rule)
+                if temp_rule_error <= min_rule_error:
+                    min_rule_error = temp_rule_error
+                    pruned_rule = temp_rule
+                    if len(temp_cond_set) >= 2:
+                        find_prune_rule(temp_rule)
 
-#     find_prune_rule(rule)
-#     return pruned_rule
+    find_prune_rule(rule)
+    return pruned_rule
 
 
 # invoked by candidate_gen, join two items to generate candidate

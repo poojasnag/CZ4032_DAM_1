@@ -1,0 +1,2 @@
+id,Area,MajorAxisLength,MinorAxisLength,Eccentricity,ConvexArea,EquivDiameter,Extent,Perimeter,Roundness,AspectRation,Class
+numerical,numerical,numerical,numerical,numerical,numerical,numerical,numerical,numerical,numerical,numerical,label
