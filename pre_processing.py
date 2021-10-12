@@ -165,6 +165,8 @@ def pre_process(data, attribute, value_type):
     if len(discard_list) > 0:
         data = discard(data, discard_list)
         print("discard:", discard_list)             # print out discard list
+
+    print(data)
     return data
 
 

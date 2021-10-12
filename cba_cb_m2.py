@@ -13,9 +13,9 @@ import ruleitem
 from functools import cmp_to_key
 
 def is_satisfy(datacase, rule, from_error=False):
-    if from_error:
-        print("datacase", datacase[-1])
-        print(rule.class_label)
+    # if from_error:
+        # print("datacase", datacase[-1])
+        # print(rule.class_label)
     # print("rule.cond_set",rule.cond_set)
     for item in rule.cond_set:  # item = key of condset
         # print("datacase",datacase)

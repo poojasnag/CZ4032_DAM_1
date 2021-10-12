@@ -148,8 +148,8 @@ def join(item1, item2, dataset):
         return None
     category1 = item1.cond_set.items()  #set(item1.cond_set)
     category2 = item2.cond_set.items() # set(item2.cond_set)
-    print('item1.cond_set', item1.cond_set)
-    print('cat_1----------------------', category1)
+    # print('item1.cond_set', item1.cond_set)
+    # print('cat_1----------------------', category1)
     if category1 == category2:
         return None
 
