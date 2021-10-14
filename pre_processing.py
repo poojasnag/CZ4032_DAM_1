@@ -162,8 +162,9 @@ def pre_process(data, attribute, value_type):
     if len(discard_list) > 0:
         data = discard(data, discard_list)
         print("discard:", discard_list)             # print out discard list
+    from dataset import Dataset
 
-    print(data)
+    data = Dataset(data, value_type, attribute)
     return data
 
 

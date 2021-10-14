@@ -177,19 +177,22 @@ def allCoverRules(u, data_case, c_rule, cars_list):
 
 # counts the number of training cases in each class
 def compClassDistr(dataset):
+    from collections import Counter
     class_distr = dict()
 
     if len(dataset) <= 0:
         class_distr = None
 
     dataset_without_null = dataset
-    while [] in dataset_without_null:
-        dataset_without_null.remove([])
+    while [] in dataset_without_null.data:
+        dataset_without_null.data.remove([])
 
-    class_column = [x[-1] for x in dataset_without_null]
-    class_label = set(class_column)
-    for c in class_label:
-        class_distr[c] = class_column.count(c)
+    class_column = dataset_without_null.get_class_list()
+    class_distr = dict(Counter(class_column))
+    # class_column = dataset_without_null.get_class_labels()
+    # class_label = set(class_column)
+    # for c in class_label:
+    #     class_distr[c] = class_column.count(c)
     return class_distr
 
 
@@ -260,11 +263,14 @@ def defErr(default_class, class_distribution):
 
 # main method, implement the whole classifier builder
 def classifier_builder_m2(cars, dataset):
+    """
+    :param dataset: Dataset instance
+    """
     classifier = Classifier_m2()
-
+    # dataset  = dataset.data
     cars_list = sort(cars)
     for i in range(len(cars_list)):
-        cars_list[i] = ruleitem2rule(cars_list[i], dataset)
+        cars_list[i] = ruleitem2rule(cars_list[i], dataset.data)  # dataset
 
     # stage 1
     q = set()
@@ -277,15 +283,18 @@ def classifier_builder_m2(cars, dataset):
         if c_rule_index is not None:
             u.add(c_rule_index)
         if c_rule_index:
-            cars_list[c_rule_index].classCasesCovered[dataset[i][-1]] += 1
+            # cars_list[c_rule_index].classCasesCovered[dataset[i][-1]] += 1
+            cars_list[c_rule_index].classCasesCovered[dataset.get_label(i)] += 1
         if c_rule_index and w_rule_index:
             if compare(cars_list[c_rule_index], cars_list[w_rule_index]) > 0:
                 q.add(c_rule_index)
                 mark_set.add(c_rule_index)
             else:
-                a.add((i, dataset[i][-1], c_rule_index, w_rule_index))
+                # a.add((i, dataset[i][-1], c_rule_index, w_rule_index))
+                a.add((i, dataset.get_label(i), c_rule_index, w_rule_index))
         elif c_rule_index is None and w_rule_index is not None:
-            a.add((i, dataset[i][-1], c_rule_index, w_rule_index))
+            # a.add((i, dataset[i][-1], c_rule_index, w_rule_index))
+            a.add((i, dataset.get_label(i), c_rule_index, w_rule_index))
 
     # stage 2
     for entry in a:
@@ -317,6 +326,7 @@ def classifier_builder_m2(cars, dataset):
                         cars_list[entry[0]].classCasesCovered[entry[2]] -= 1
             for i in range(len(dataset)):
                 datacase = dataset[i]
+
                 if datacase:
                     is_satisfy_value = is_satisfy(datacase, cars_list[r_index])
                     if is_satisfy_value:

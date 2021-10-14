@@ -1,11 +1,15 @@
 import random
 import time
 from absl import app
+from dataset import Dataset
 
 from read import read
 from pre_processing import pre_process
 from cba_rg import rule_generator
 from cba_cb_m2 import classifier_builder_m2, is_satisfy
+
+from sklearn.model_selection import KFold
+
 
 class CrossValidationM2:
     def __init__(self, data_path, scheme_path, minsup, minconf):
@@ -18,10 +22,9 @@ class CrossValidationM2:
         self.total_car_num = 0
         self.total_classifier_rule_num = 0
         self.total_error_rate = 0
-        self.ground_truth_labels = []
         self.pred_labels = []
-        self.total_train = 0
-        self.total_test = 0
+        # self.total_train = 0
+        # self.total_test = 0
         self.rules = set()
         self.num_folds = 10
 
@@ -50,7 +53,6 @@ class CrossValidationM2:
                     break
             # if is_satisfy_value == False:
             if not is_satisfy_value:
-
                 if classifier.default_class != case[-1]:
                     # print('************************ ERROR *******************************')
                     pred_labels.append('wrong!')
@@ -74,17 +76,22 @@ class CrossValidationM2:
         dataset = pre_process(data, attributes, value_type)
 
         folds = int(len(dataset)/self.num_folds)
+        kf = KFold(n_splits=10)
         split = [k*folds for k in range(0,self.num_folds)]
         split.append(len(dataset))
 
-        self.ground_truth_labels = [data[-1] for data in dataset]
-
-        for k in range(len(split)-1):
+        ground_truth_labels = dataset.ground_truth_labels #[data[-1] for data in dataset]
+        k = 1
+        # for k in range(len(split)-1):
+        for train_idx, test_idx in kf.split(dataset):
             print(f"========================== FOLD {k} ==========================")
 
-            train_dataset, test_dataset = self.create_train_test_ds(dataset, split, k)
-            self.total_train += len(train_dataset)
-            self.total_test += len(test_dataset)
+            # train_dataset, test_dataset = self.create_train_test_ds(dataset, split, k)
+            train_dataset = Dataset(dataset.get_indexes(train_idx), dataset.value_types, dataset.attributes)
+            test_dataset = Dataset(dataset.get_indexes(test_idx), dataset.value_types, dataset.attributes)
+
+            # self.total_train += len(train_dataset)
+            # self.total_test += len(test_dataset)
 
             start_time = time.time()
             cars = rule_generator(train_dataset, self.minsup, self.minconf)
@@ -108,6 +115,7 @@ class CrossValidationM2:
 
             self.total_car_num += len(cars.rules)
             self.total_classifier_rule_num += len(classifier.rule_list)
+            k += 1
 
             print("CBA error rate without pruning: %.1lf%%" % (error_rate*100))
             print("CBA's error rate with pruning: %.1lf%%" % (error_rate * 100))

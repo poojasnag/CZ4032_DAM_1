@@ -86,7 +86,7 @@ class Car:
     def prune_rules(self, dataset):
         for rule in self.rules:
             # pruned_rule = prune(rule, dataset)  # return object
-            pruner = Prune(rule, dataset)
+            pruner = Prune(rule, dataset.data)
             pruner.find_prune_rule(rule)
             pruned_rule = pruner.pruned_rule
             # print("pruned_rule", pruned_rule)
@@ -191,15 +191,15 @@ def rule_generator(dataset, minsup, minconf):
     car = Car()
 
     # FIRST SCAN (C1)
-    # TODO: Separate out this part
-    # get large 1-ruleitems and generate rules
-    class_label = set([x[-1] for x in dataset])
-    for column in range(0, len(dataset[0])-1):  # range(4) each col is a feature
-        distinct_value = set([x[column] for x in dataset])  # {1,2,3}
+
+    for column in range(dataset.num_attributes):
+        # distinct_value = set([x[column] for x in dataset])  # {1,2,3}
+        distinct_value = dataset.get_distinct_values(column)
         for value in distinct_value:
             cond_set = {column: value}
-            for classes in class_label:
-                rule_item = ruleitem.RuleItem(cond_set, classes, dataset)
+            # for classes in class_label:
+            for classes in set(dataset.get_class_list()):
+                rule_item = ruleitem.RuleItem(cond_set, classes, dataset)  # dataset.data
                 if rule_item.support >= minsup:
                     frequent_ruleitems.add(rule_item)
     # L1
