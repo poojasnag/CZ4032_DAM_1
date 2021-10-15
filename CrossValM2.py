@@ -7,6 +7,7 @@ from read import read
 from pre_processing import pre_process
 from cba_rg import rule_generator
 from cba_cb_m2 import classifier_builder_m2, is_satisfy
+from collections import Counter
 
 from sklearn.model_selection import KFold
 
@@ -55,7 +56,36 @@ class CrossValidationM2:
         return error_count / len(dataset)
 
 
-    def cross_validation(self):
+
+    def create_train_test_ds(self, dataset, split, k):
+        train_ds = dataset[:split[k]] + dataset[split[k+1]:]
+        test_ds = dataset[split[k]:split[k+1]]
+        return train_ds, test_ds
+
+    # dictionary for multiple minsup values
+    def class_minsup(self, dataset, multiple=False):
+        # Store in dictionary with class as key and minsup as value
+        actual_labels = dataset.get_class_list()
+        class_freq = Counter(actual_labels)
+        totalcount = len(actual_labels)
+        for key, value in class_freq.items():
+            if multiple:
+                class_freq[key] = self.minsup * value/totalcount # minsup
+            else:
+                class_freq[key] = self.minsup
+        class_freq = dict(class_freq)
+        return class_freq
+
+    # def single_minsup(self, dataset):
+    #     # Store in dictionary with class as key and minsup as value
+    #     actual_labels = dataset.get_class_list()
+    #     class_freq = Counter(actual_labels)
+    #     for key in class_freq.items():
+    #         class_freq[key] = self.minsup
+    #     class_freq = dict(class_freq)
+    #     return class_freq
+
+    def cross_validation(self, multiple):
         # read data
         data, attributes, value_type = read(self.data_path, self.scheme_path)
         random.Random(1).shuffle(data)
@@ -75,7 +105,7 @@ class CrossValidationM2:
             # self.total_test += len(test_dataset)
 
             start_time = time.time()
-            cars = rule_generator(train_dataset, self.minsup, self.minconf)
+            cars = rule_generator(train_dataset, self.class_minsup(dataset, multiple=multiple), self.minconf)
 
             # print(cars.rules.pop().condset)
 

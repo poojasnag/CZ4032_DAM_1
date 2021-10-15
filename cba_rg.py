@@ -10,7 +10,7 @@ import ruleitem
 import sys
 from cba_cb_m2 import errorsOfRule
 from dataset import Dataset
-from pre_processing import pre_process
+from pre_processing import *
 
 
 class FrequentRuleitems:
@@ -81,8 +81,10 @@ class Car:
             self.rules.add(rule_item)
 
     # convert frequent ruleitems into car
-    def gen_rules(self, frequent_ruleitems, minsup, minconf):
+    def gen_rules(self, frequent_ruleitems, minsup_dict, minconf):
         for item in frequent_ruleitems.frequent_ruleitems_set:
+            label = item.class_label
+            minsup = get_minsup(label, minsup_dict)
             self._add(item, minsup, minconf)
 
     # prune rules
@@ -199,7 +201,8 @@ def candidate_gen(frequent_ruleitems, dataset):
 #################################################################### CBA-RG ######################################################################################
 
 # main method, implementation of CBA-RG algorithm
-def rule_generator(dataset, minsup, minconf):
+def rule_generator(dataset, minsup_dict, minconf):
+
     frequent_ruleitems = FrequentRuleitems()
     car = Car()
 
@@ -213,10 +216,11 @@ def rule_generator(dataset, minsup, minconf):
             # for classes in class_label:
             for classes in set(dataset.get_class_list()):
                 rule_item = ruleitem.RuleItem(cond_set, classes, dataset)  # dataset.data
+                minsup = get_minsup(classes, minsup_dict)
                 if rule_item.support >= minsup:
                     frequent_ruleitems.add(rule_item)
     # L1
-    car.gen_rules(frequent_ruleitems, minsup, minconf)
+    car.gen_rules(frequent_ruleitems, minsup_dict, minconf)
     cars = car
 
     # print(cars.rules.pop().__dict__)
@@ -231,9 +235,11 @@ def rule_generator(dataset, minsup, minconf):
         frequent_ruleitems = FrequentRuleitems()
         car = Car()
         for item in candidate.frequent_ruleitems_set:
+            label = item.class_label
+            minsup = get_minsup(label, minsup_dict)
             if item.support >= minsup:
                 frequent_ruleitems.add(item)
-        car.gen_rules(frequent_ruleitems, minsup, minconf)
+        car.gen_rules(frequent_ruleitems, minsup_dict, minconf)
         cars.append(car, minsup, minconf)
         last_cars_number = current_cars_number
         current_cars_number = len(cars.rules)
@@ -267,7 +273,10 @@ if __name__ == "__main__":
 
     minsup = 0.15
     minconf = 0.6
-    cars = rule_generator(dataObj, minsup, minconf)
+
+    minsup_dict = class_minsup(dataObj, minsup)
+
+    cars = rule_generator(dataObj, minsup_dict, minconf)
 
     print("CARs:")
     cars.print_rule()
