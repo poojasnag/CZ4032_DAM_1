@@ -39,33 +39,20 @@ class CrossValidationM2:
         # print()
         # print('----')
 
-        for case in dataset:  # case is e.g. [1, 1, 2, 2, 'Iris-versicolor']
+        for idx in range(len(dataset)):  # case is e.g. [1, 1, 2, 2, 'Iris-versicolor']
             is_satisfy_value = False
-
             for rule in classifier.rule_list:
-                # print('rule', rule.__dict__)
-
-                is_satisfy_value = is_satisfy(case, rule, from_error=True)
-                # print("is_satisfy_value", is_satisfy_value)
+                is_satisfy_value = is_satisfy(dataset[idx], rule, from_error=True)
                 if is_satisfy_value == True:
-                    pred_labels.append(case[-1])
+                    pred_labels.append(dataset.get_label(idx))
                     break
-            # if is_satisfy_value == False:
             if not is_satisfy_value:
-                if classifier.default_class != case[-1]:
-                    # print('************************ ERROR *******************************')
+                if classifier.default_class != dataset.get_label(idx):
                     pred_labels.append('wrong!')
                     error_count += 1
                 else:
                     pred_labels.append(classifier.default_class)
         return error_count / len(dataset)
-
-
-
-    def create_train_test_ds(self, dataset, split, k):
-        train_ds = dataset[:split[k]] + dataset[split[k+1]:]
-        test_ds = dataset[split[k]:split[k+1]]
-        return train_ds, test_ds
 
 
     def cross_validation(self):
@@ -74,14 +61,9 @@ class CrossValidationM2:
         random.Random(1).shuffle(data)
         dataset = pre_process(data, attributes, value_type)
 
-        folds = int(len(dataset)/self.num_folds)
         kf = KFold(n_splits=10)
-        split = [k*folds for k in range(0,self.num_folds)]
-        split.append(len(dataset))
 
-        ground_truth_labels = dataset.ground_truth_labels #[data[-1] for data in dataset]
         k = 1
-        # for k in range(len(split)-1):
         for train_idx, test_idx in kf.split(dataset):
             print(f"========================== FOLD {k} ==========================")
 

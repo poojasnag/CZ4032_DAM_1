@@ -9,8 +9,10 @@ Input: a set of CARs generated from rule_generator (see cab_rg.py) and a dataset
 Output: a classifier
 Author: CBA Studio
 """
-import ruleitem
+from collections import namedtuple
 from functools import cmp_to_key
+
+import ruleitem
 
 class Classifier_m2:
     """
@@ -56,7 +58,7 @@ class Rule(ruleitem.RuleItem):
 
     # initialize the classCasesCovered field
     def _init_classCasesCovered(self, dataset):
-        class_column = [x[-1] for x in dataset]
+        class_column = dataset.get_class_list() # [x[-1] for x in dataset]
         class_label = set(class_column)
         self.classCasesCovered = dict((x, 0) for x in class_label)
 
@@ -90,7 +92,7 @@ def ruleitem2rule(rule_item, dataset):
     return rule
 
 
-# finds the highest precedence rule that covers the data case d from the set of rules having 
+# finds the highest precedence rule that covers the data case d from the set of rules having
 #   if boolean == True: same class as d
 #   if boolean == False: different class as d.
 def maxCoverRule(cars_list, data_case, boolean):
@@ -209,26 +211,29 @@ def classifier_builder_m2(cars, dataset):
     classifier = Classifier_m2()
     cars_list = sort(cars)
     for i in range(len(cars_list)):
-        cars_list[i] = ruleitem2rule(cars_list[i], dataset.data)  # dataset
+        cars_list[i] = ruleitem2rule(cars_list[i], dataset)  # dataset
 
     # stage 1
     q = set()
     u = set()
     a = set()
     mark_set = set()
+    A_item = namedtuple('A_item', ['id', 'class', 'cRule', 'wRule'])
+
     for i in range(len(dataset)):
         c_rule_index = maxCoverRule(cars_list, dataset[i], True)
         w_rule_index = maxCoverRule(cars_list, dataset[i], False)
+
         if c_rule_index is not None:
             u.add(c_rule_index)
         if c_rule_index:
-            # cars_list[c_rule_index].classCasesCovered[dataset[i][-1]] += 1
             cars_list[c_rule_index].classCasesCovered[dataset.get_label(i)] += 1
         if c_rule_index and w_rule_index:
             if compare(cars_list[c_rule_index], cars_list[w_rule_index]) > 0:
                 q.add(c_rule_index)
                 mark_set.add(c_rule_index)
             else:
+
                 a.add((i, dataset.get_label(i), c_rule_index, w_rule_index))
         elif c_rule_index is None and w_rule_index is not None:
             a.add((i, dataset.get_label(i), c_rule_index, w_rule_index))
