@@ -68,18 +68,30 @@ class CrossValidationM2:
         test_ds = dataset[split[k]:split[k+1]]
         return train_ds, test_ds
 
-    def class_minsup(self, dataset):
+    # dictionary for multiple minsup values 
+    def class_minsup(self, dataset, multiple=False):
         # Store in dictionary with class as key and minsup as value 
         actual_labels = dataset.get_class_list()
         class_freq = Counter(actual_labels) 
         totalcount = len(actual_labels)
         for key, value in class_freq.items(): 
-            class_freq[key] = self.minsup * value/totalcount # minsup 
+            if multiple:
+                class_freq[key] = self.minsup * value/totalcount # minsup 
+            else:
+                class_freq[key] = self.minsup 
         class_freq = dict(class_freq)
         return class_freq
 
+    # def single_minsup(self, dataset):
+    #     # Store in dictionary with class as key and minsup as value 
+    #     actual_labels = dataset.get_class_list()
+    #     class_freq = Counter(actual_labels) 
+    #     for key in class_freq.items(): 
+    #         class_freq[key] = self.minsup 
+    #     class_freq = dict(class_freq)
+    #     return class_freq
 
-    def cross_validation(self):
+    def cross_validation(self, multiple):
         # read data
         data, attributes, value_type = read(self.data_path, self.scheme_path)
         random.Random(1).shuffle(data)
@@ -104,7 +116,7 @@ class CrossValidationM2:
             # self.total_test += len(test_dataset)
 
             start_time = time.time()
-            cars = rule_generator(train_dataset, self.class_minsup(dataset), self.minconf)
+            cars = rule_generator(train_dataset, self.class_minsup(dataset, multiple=multiple), self.minconf)
 
             # print(cars.rules.pop().condset)
 

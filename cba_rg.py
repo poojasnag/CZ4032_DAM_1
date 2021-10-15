@@ -202,6 +202,7 @@ def candidate_gen(frequent_ruleitems, dataset):
 
 # main method, implementation of CBA-RG algorithm
 def rule_generator(dataset, minsup_dict, minconf):
+
     frequent_ruleitems = FrequentRuleitems()
     car = Car()
 
