@@ -30,7 +30,6 @@ class CrossValidationM2:
 
 
     def get_error_rate(self, classifier, dataset, pred_labels):
-        size = len(dataset)
         error_count = 0
         # print('--RULES--')
         # for idx, rule in enumerate(classifier.rule_list, start=1):
@@ -59,7 +58,7 @@ class CrossValidationM2:
                     error_count += 1
                 else:
                     pred_labels.append(classifier.default_class)
-        return error_count / size
+        return error_count / len(dataset)
 
 
 

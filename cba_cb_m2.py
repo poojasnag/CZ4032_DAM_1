@@ -20,12 +20,16 @@ def is_satisfy(datacase, rule, from_error=False):
     for item in rule.cond_set:  # item = key of condset
         # print("datacase",datacase)
         # print('datacase[item]',datacase[item], "rule.cond_set[item]", rule.cond_set[item])
+        # exit()
         if datacase[item] != rule.cond_set[item]:  # check if datacase values match that of the rule's cond_set
             return None
-    if datacase[-1] == rule.class_label:
-        return True
-    else:
-        return False
+    return True if datacase[-1] == rule.class_label else False
+    # if datacase[-1] == rule.class_label:
+    #     return True
+    # else:
+    #     return False
+
+    
 
 # def is_satisfy(datacase, rule):
 #     for item in rule.cond_set:
@@ -37,28 +41,44 @@ def is_satisfy(datacase, rule, from_error=False):
 #         return False
 
 # sort the set of generated rules car according to the relation ">", return the sorted rule list
-def sort(car):
-    def cmp_method(a, b):
-        if a.confidence < b.confidence:     # 1. the confidence of ri > rj
-            return 1
-        elif a.confidence == b.confidence:
-            if a.support < b.support:       # 2. their confidences are the same, but support of ri > rj
-                return 1
-            elif a.support == b.support:
-                if len(a.cond_set) < len(b.cond_set):   # 3. both confidence & support are the same, ri earlier than rj
-                    return -1
-                elif len(a.cond_set) == len(b.cond_set):
-                    return 0
-                else:
-                    return 1
-            else:
-                return -1
-        else:
-            return -1
+def compare_len(a,b):
+    return -1 if len(a.cond_set) < len(b.cond_set) else 0 if len(a.cond_set) == len(b.cond_set) else 1
 
+def compare_support(a,b):
+    return 1 if a.support<b.support else compare_len(a,b) if a.support==b.support else -1
+
+def comp_method(a,b):
+    return 1 if a.confidence<b.confidence else compare_support(a,b) if a.confidence==b.confidence else -1
+
+def sort(car):
+    def cmp_method(a,b):
+        return comp_method(a,b)
     rule_list = list(car.rules)
     rule_list.sort(key=cmp_to_key(cmp_method))
     return rule_list
+
+# def sort(car):
+#     def cmp_method(a, b):
+#         if a.confidence < b.confidence:     # 1. the confidence of ri > rj
+#             return 1
+#         elif a.confidence == b.confidence:
+#             if a.support < b.support:       # 2. their confidences are the same, but support of ri > rj
+#                 return 1
+#             elif a.support == b.support:
+#                 if len(a.cond_set) < len(b.cond_set):   # 3. both confidence & support are the same, ri earlier than rj
+#                     return -1
+#                 elif len(a.cond_set) == len(b.cond_set):
+#                     return 0
+#                 else:
+#                     return 1
+#             else:
+#                 return -1
+#         else:
+#             return -1
+
+#     rule_list = list(car.rules)
+#     rule_list.sort(key=cmp_to_key(cmp_method))
+#     return rule_list
 
 class Classifier_m2:
     """
@@ -138,29 +158,39 @@ def maxCoverRule_wrong(cars_list, data_case):
 # compare two rule, return the precedence.
 #   -1: rule1 < rule2, 0: rule1 < rule2 (randomly here), 1: rule1 > rule2
 def compare(rule1, rule2):
-    if rule1 is None and rule2 is not None:
+    # if rule1 is None and rule2 is not None:
+    #     return -1
+    # elif rule1 is None and rule2 is None:
+    #     return 0
+    # elif rule1 is not None and rule2 is None:
+    #     return 1
+
+    if rule2 and not rule1:
         return -1
-    elif rule1 is None and rule2 is None:
-        return 0
-    elif rule1 is not None and rule2 is None:
+    elif not rule1 and not rule2:
+        return 
+    elif rule1 and not rule2:
         return 1
 
-    if rule1.confidence < rule2.confidence:     # 1. the confidence of ri > rj
-        return -1
-    elif rule1.confidence == rule2.confidence:
-        if rule1.support < rule2.support:       # 2. their confidences are the same, but support of ri > rj
-            return -1
-        elif rule1.support == rule2.support:
-            if len(rule1.cond_set) < len(rule2.cond_set):   # 3. confidence & support are the same, ri earlier than rj
-                return 1
-            elif len(rule1.cond_set) == len(rule2.cond_set):
-                return 0
-            else:
-                return -1
-        else:
-            return 1
-    else:
-        return 1
+    return -comp_method(rule1, rule2)
+
+
+    # if rule1.confidence < rule2.confidence:     # 1. the confidence of ri > rj
+    #     return -1
+    # elif rule1.confidence == rule2.confidence:
+    #     if rule1.support < rule2.support:       # 2. their confidences are the same, but support of ri > rj
+    #         return -1
+    #     elif rule1.support == rule2.support:
+    #         if len(rule1.cond_set) < len(rule2.cond_set):   # 3. confidence & support are the same, ri earlier than rj
+    #             return 1
+    #         elif len(rule1.cond_set) == len(rule2.cond_set):
+    #             return 0
+    #         else:
+    #             return -1
+    #     else:
+    #         return 1
+    # else:
+    #     return 1
 
 
 # finds all the rules in u that wrongly classify the data case and have higher precedences than that of its cRule.
@@ -199,25 +229,26 @@ def compClassDistr(dataset):
 # sort the rule list order by precedence
 def sort_with_index(q, cars_list):
     def cmp_method(a, b):
-        # 1. the confidence of ri > rj
-        if cars_list[a].confidence < cars_list[b].confidence:
-            return 1
-        elif cars_list[a].confidence == cars_list[b].confidence:
-            # 2. their confidences are the same, but support of ri > rj
-            if cars_list[a].support < cars_list[b].support:
-                return 1
-            elif cars_list[a].support == cars_list[b].support:
-                # 3. both confidence & support are the same, ri earlier than rj
-                if len(cars_list[a].cond_set) < len(cars_list[b].cond_set):
-                    return -1
-                elif len(cars_list[a].cond_set) == len(cars_list[b].cond_set):
-                    return 0
-                else:
-                    return 1
-            else:
-                return -1
-        else:
-            return -1
+        return comp_method(cars_list[a], cars_list[b])
+        # # 1. the confidence of ri > rj
+        # if cars_list[a].confidence < cars_list[b].confidence:
+        #     return 1
+        # elif cars_list[a].confidence == cars_list[b].confidence:
+        #     # 2. their confidences are the same, but support of ri > rj
+        #     if cars_list[a].support < cars_list[b].support:
+        #         return 1
+        #     elif cars_list[a].support == cars_list[b].support:
+        #         # 3. both confidence & support are the same, ri earlier than rj
+        #         if len(cars_list[a].cond_set) < len(cars_list[b].cond_set):
+        #             return -1
+        #         elif len(cars_list[a].cond_set) == len(cars_list[b].cond_set):
+        #             return 0
+        #         else:
+        #             return 1
+        #     else:
+        #         return -1
+        # else:
+        #     return -1
 
     rule_list = list(q)
     rule_list.sort(key=cmp_to_key(cmp_method))

@@ -19,6 +19,8 @@ import pandas as pd
 #   having the same frequency, return the first one.
 # arr: a list need to find mode
 def get_mode(arr):
+    # print(arr)
+    exit()
     arr_appear = dict((a, arr.count(a)) for a in arr)   # count appearance times of each key
     if max(arr_appear.values()) == 1:       # if max time is 1
         return      # no mode here
@@ -138,6 +140,7 @@ def pre_process(data, attribute, value_type):
         elif missing_values_ratio > 0:
             data = fill_missing_values(data, i)
             data_column = [x[i] for x in data]
+
 
         # discretization
         if value_type[i] == 'numerical':

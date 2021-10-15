@@ -8,6 +8,7 @@ Reference: https://www.cs.uic.edu/~hxiao/courses/cs594-slides.pdf
 """
 import ruleitem
 import sys
+from cba_cb_m2 import errorsOfRule
 
 
 class FrequentRuleitems:
@@ -114,14 +115,16 @@ class Prune:
         self.pruned_rule = initial_rule
 
     def errors_of_rule(self, r):  # input rule
-        import cba_cb_m2
+        # import cba_cb_m2
 
-        errors_number = 0
-        for case in self.dataset:
-            if cba_cb_m2.is_satisfy(case, r) == False:
-            # if not cba_cb_m2.is_satisfy(case, r):
-                errors_number += 1
-        return errors_number
+        # errors_number = 0
+        # for case in self.dataset:
+        #     if cba_cb_m2.is_satisfy(case, r) == False:
+        #     # if not cba_cb_m2.is_satisfy(case, r):
+        #         errors_number += 1
+        # return errors_number
+        return errorsOfRule(r, self.dataset)
+
   # prune rule recursively
     def find_prune_rule(self, this_rule):
         # calculate how many errors the rule r make in the dataset
