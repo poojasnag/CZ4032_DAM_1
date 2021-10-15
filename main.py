@@ -5,7 +5,7 @@ from CrossValM2 import CrossValidationM2
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string('filename', 'iris', 'Path to data file.')
+flags.DEFINE_string('filename', 'social', 'Path to data file.')
 # flags.DEFINE_string('scheme_path', 'datasets/iris.names', 'Path to scheme file.')
 flags.DEFINE_boolean('debug', False, 'Produces debugging output.')
 flags.DEFINE_float('minsup', 0.01, 'Minimum support level')

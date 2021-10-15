@@ -7,6 +7,7 @@ from read import read
 from pre_processing import pre_process
 from cba_rg import rule_generator
 from cba_cb_m2 import classifier_builder_m2, is_satisfy
+from collections import Counter
 
 from sklearn.model_selection import KFold
 
@@ -67,6 +68,16 @@ class CrossValidationM2:
         test_ds = dataset[split[k]:split[k+1]]
         return train_ds, test_ds
 
+    def class_minsup(self, dataset):
+        # Store in dictionary with class as key and minsup as value 
+        actual_labels = dataset.get_class_list()
+        class_freq = Counter(actual_labels) 
+        totalcount = len(actual_labels)
+        for key, value in class_freq.items(): 
+            class_freq[key] = self.minsup * value/totalcount # minsup 
+        class_freq = dict(class_freq)
+        return class_freq
+
 
     def cross_validation(self):
         # read data
@@ -93,7 +104,7 @@ class CrossValidationM2:
             # self.total_test += len(test_dataset)
 
             start_time = time.time()
-            cars = rule_generator(train_dataset, self.minsup, self.minconf)
+            cars = rule_generator(train_dataset, self.class_minsup(dataset), self.minconf)
 
             # print(cars.rules.pop().condset)
 

@@ -13,7 +13,7 @@ Reference:
 """
 import numpy as np
 import pandas as pd
-
+from collections import Counter
 
 # Identify the mode of a list, both effective for numerical and categorical list. When there exists too many modes
 #   having the same frequency, return the first one.
@@ -169,6 +169,19 @@ def pre_process(data, attribute, value_type):
 
     data = Dataset(data, value_type, attribute)
     return data
+
+# multiple minsup
+
+
+# get unique minsup value for that class label 
+def get_minsup(label, minsup_dict):
+    minsup_value = minsup_dict.get(label)
+    return minsup_value
+
+# get the minimum minsup value 
+def min_minsup(minsup_dict): 
+    distinct = set(minsup_dict.values())
+    return min(distinct)
 
 
 # just for test
