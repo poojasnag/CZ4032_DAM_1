@@ -218,7 +218,9 @@ def classifier_builder_m2(cars, dataset):
     u = set()
     a = set()
     mark_set = set()
-    A_item = namedtuple('A_item', ['id', 'class', 'cRule', 'wRule'])
+    A_item = namedtuple('A_item', ['id', 'class_label', 'cRule', 'wRule'])
+    R_item = namedtuple('r_item', [ 'cRule', 'id', 'class_label'])
+
 
     for i in range(len(dataset)):
         c_rule_index = maxCoverRule(cars_list, dataset[i], True)
@@ -233,39 +235,42 @@ def classifier_builder_m2(cars, dataset):
                 q.add(c_rule_index)
                 mark_set.add(c_rule_index)
             else:
-
-                a.add((i, dataset.get_label(i), c_rule_index, w_rule_index))
+                a_item = A_item(i, dataset.get_label(i), c_rule_index, w_rule_index )
+                a.add(a_item)
         elif c_rule_index is None and w_rule_index is not None:
-            a.add((i, dataset.get_label(i), c_rule_index, w_rule_index))
+            a_item = A_item(i, dataset.get_label(i), c_rule_index, w_rule_index )
+            a.add(a_item)
 
     # stage 2
     for entry in a:
-        if cars_list[entry[3]] in mark_set:
-            if entry[2] is not None:
-                cars_list[entry[2]].classCasesCovered[entry[1]] -= 1
-            cars_list[entry[3]].classCasesCovered[entry[1]] += 1
-        else:
-            if entry[2] is not None:
-                w_set = allCoverRules(u, dataset[entry[0]], cars_list[entry[2]], cars_list)
-            else:
-                w_set = allCoverRules(u, dataset[entry[0]], None, cars_list)
-            for w in w_set:
-                cars_list[w].replace.add((entry[2], entry[0], entry[1]))
-                cars_list[w].classCasesCovered[entry[1]] += 1
-            q |= w_set
 
+        if cars_list[entry.wRule] in mark_set:
+            if entry.cRule is not None:
+                cars_list[entry.cRule].classCasesCovered[entry.class_label] -= 1
+            cars_list[entry.wRule].classCasesCovered[entry.class_label] += 1
+        else:
+            if entry.cRule is not None:
+                w_set = allCoverRules(u, dataset[entry.id], cars_list[entry.cRule], cars_list)
+            else:
+                w_set = allCoverRules(u, dataset[entry.id], None, cars_list)
+            for w in w_set:
+                r_item = R_item(entry.cRule, entry.id, entry.class_label)
+                cars_list[w].replace.add(r_item)
+                cars_list[w].classCasesCovered[entry.class_label] += 1
+            q |= w_set
     # stage 3
+
     rule_errors = 0
     q = sort_with_index(q, cars_list)
     data_cases_covered = list([False] * len(dataset))
     for r_index in q:
         if cars_list[r_index].classCasesCovered[cars_list[r_index].class_label] != 0:
             for entry in cars_list[r_index].replace:
-                if data_cases_covered[entry[1]]:
-                    cars_list[r_index].classCasesCovered[entry[2]] -= 1
+                if data_cases_covered[entry.id]:
+                    cars_list[r_index].classCasesCovered[entry.class_label] -= 1
                 else:
-                    if entry[0] is not None:
-                        cars_list[entry[0]].classCasesCovered[entry[2]] -= 1
+                    if entry.cRule is not None:
+                        cars_list[entry.cRule].classCasesCovered[entry.class_label] -= 1
             for i in range(len(dataset)):
                 datacase = dataset[i]
 
