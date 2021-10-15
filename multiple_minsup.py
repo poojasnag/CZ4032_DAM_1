@@ -70,7 +70,7 @@ def min_minsup(dataset, total_minsup):
 
 # 10-fold cross-validations on CBA (M2) with pruning
 ## added in total_minsup and multiple to parameters 
-def cross_validate_m2_with_prune(data_path, scheme_path, total_minsup, multiple, minconf=0.5):
+def cross_validate_m2_with_prune2(data_path, scheme_path, total_minsup, multiple, minconf=0.5):
     data, attributes, value_type = read(data_path, scheme_path)
     # data is :  # (150, 5)
     # attributes is ['sepal length', 'sepal width', 'petal length', 'petal width', 'class']
@@ -147,12 +147,45 @@ def cross_validate_m2_with_prune(data_path, scheme_path, total_minsup, multiple,
     # print('total_test', total_test)
     # print('total_trng', total_trng)
 
+# if __name__ == "__main__":
+
+#     test_data_path = 'datasets/iris.data'
+#     test_scheme_path = 'datasets/iris.names'
+#     total_minsup = 0.01
+#     multiple = True
+
+#     cross_validate_m2_with_prune(test_data_path, test_scheme_path, total_minsup, multiple)
+
+# just for test
 if __name__ == "__main__":
+    # dataset1 = [[1, 1, 1], [1, 1, 1], [1, 2, 1], [2, 2, 1], [2, 2, 1],
+    #            [2, 2, 0], [2, 3, 0], [2, 3, 0], [1, 1, 0], [3, 2, 0]]
+    test_data = [
+        ['red', 25.6, 56, 1],
+        ['green', 33.3, 1, 1],
+        ['green', 2.5, 23, 0],
+        ['blue', 67.2, 111, 1],
+        ['red', 29.0, 34, 0],
+        ['yellow', 99.5, 78, 1],
+        ['yellow', 10.2, 23, 1],
+        ['yellow', 9.9, 30, 0],
+        ['blue', 67.0, 47, 0],
+        ['red', 41.8, 99, 1]
+    ]
+    test_attribute = ['color', 'average', 'age', 'class']
+    test_value_type = ['categorical', 'numerical', 'numerical', 'label']
+    test_data_after = pre_process(test_data, test_attribute, test_value_type)
+    dataObj = Dataset(test_data_after, test_value_type, test_attribute)
+    dataObj.num_attributes = len(dataObj.attributes)-1
+    dataObj.ground_truth_labels = [d[-1] for d in dataObj.data]
 
-    test_data_path = 'datasets/iris.data'
-    test_scheme_path = 'datasets/iris.names'
-    total_minsup = 0.01
-    multiple = True
+    minsup = 0.15
+    minconf = 0.6
+    cars = rule_generator(dataObj, minsup, minconf)
 
-    cross_validate_m2_with_prune(test_data_path, test_scheme_path, total_minsup, multiple)
+    print("CARs:")
+    cars.print_rule()
 
+    print("prCARs:")
+    cars.prune_rules(dataObj)
+    cars.print_pruned_rule()
