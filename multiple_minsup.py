@@ -46,25 +46,22 @@ import random
 # create class_freq that stores minsup for each class 
 def class_minsup(dataset, total_minsup):
     # Store in dictionary with class as key and minsup as value 
-    actual_labels = dataset.get_class_list
+    actual_labels = dataset.get_class_list()
     class_freq = Counter(actual_labels) 
-    class_freq = dict(class_freq)
-    totalcount = dataset.len()
+    totalcount = len(actual_labels)
     for key, value in class_freq.items(): 
         class_freq[key] = total_minsup * value/totalcount # minsup 
-
+    class_freq = dict(class_freq)
     return class_freq
 
 # get unique minsup value for that class label 
-def get_minsup(label, dataset, total_minsup):
-    class_freq = class_minsup(dataset, total_minsup)
-    minsup_value = class_freq.get(label)
+def get_minsup(label, minsup_dict):
+    minsup_value = minsup_dict.get(label)
     return minsup_value
 
 # get the minimum minsup value 
-def min_minsup(dataset, total_minsup): 
-    minsups = class_minsup(dataset, total_minsup)
-    distinct = set(minsups.values())
+def min_minsup(minsup_dict): 
+    distinct = set(minsup_dict.values())
     return min(distinct)
 
 
