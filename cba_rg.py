@@ -9,6 +9,8 @@ Reference: https://www.cs.uic.edu/~hxiao/courses/cs594-slides.pdf
 import ruleitem
 import sys
 from cba_cb_m2 import errorsOfRule
+from dataset import Dataset
+from pre_processing import pre_process
 
 
 class FrequentRuleitems:
@@ -124,7 +126,7 @@ class Prune:
         #         errors_number += 1
         # return errors_number
         return errorsOfRule(r, self.dataset)
-
+        
   # prune rule recursively
     def find_prune_rule(self, this_rule):
         # calculate how many errors the rule r make in the dataset
@@ -149,29 +151,37 @@ class Prune:
 def join(item1, item2, dataset):
     if item1.class_label != item2.class_label:
         return None
-    category1 = item1.cond_set.items()  #set(item1.cond_set)
-    category2 = item2.cond_set.items() # set(item2.cond_set)
-    # print('item1.cond_set', item1.cond_set)
-    # print('cat_1----------------------', category1)
+    category1 = item1.cond_set.items()  #set(item1.cond_set) 4:3 1:5
+    category2 = item2.cond_set.items() # set(item2.cond_set) 2:4 1:3
     if category1 == category2:
         return None
-
     intersect = dict(category1 & category2)
-    if not intersect: return None
-    # intersect = category1 & category2
-    # for item in intersect:
-    #     if item1.cond_set[item] != item2.cond_set[item]:
-    #         return None
-    # category = category1 | category2
-    new_cond_set = dict(category1 | category2)
-    # new_cond_set = dict()
-    # for item in category:
-    #     if item in category1:
-    #         new_cond_set[item] = item1.cond_set[item]
-    #     else:
-    #         new_cond_set[item] = item2.cond_set[item]
-    new_ruleitem = ruleitem.RuleItem(new_cond_set, item1.class_label, dataset)
-    return new_ruleitem
+    if set(intersect.keys()) == (dict(category1).keys() & dict(category2).keys()):  
+        new_cond_set = dict(category1 | category2)
+        new_ruleitem = ruleitem.RuleItem(new_cond_set, item1.class_label, dataset)
+        return new_ruleitem
+    return None
+
+# def join1(item1, item2, dataset):
+#     if item1.class_label != item2.class_label:
+#         return None
+#     category1 = set(item1.cond_set) # {1}
+#     category2 = set(item2.cond_set) # {3}
+#     if category1 == category2:
+#         return None
+#     intersect = category1 & category2 # {}
+#     for item in intersect:
+#         if item1.cond_set[item] != item2.cond_set[item]:
+#             return None
+#     category = category1 | category2 # {1,3}
+#     new_cond_set = dict()
+#     for item in category:
+#         if item in category1:
+#             new_cond_set[item] = item1.cond_set[item]
+#         else:
+#             new_cond_set[item] = item2.cond_set[item]
+#     new_ruleitem = ruleitem.RuleItem(new_cond_set, item1.class_label, dataset)
+#     return new_ruleitem
 
 # TODO: replace this!!!
 # similar to Apriori-gen in algorithm Apriori
@@ -236,15 +246,32 @@ def rule_generator(dataset, minsup, minconf):
 
 # just for test
 if __name__ == "__main__":
-    dataset = [[1, 1, 1], [1, 1, 1], [1, 2, 1], [2, 2, 1], [2, 2, 1],
-               [2, 2, 0], [2, 3, 0], [2, 3, 0], [1, 1, 0], [3, 2, 0]]
+    # dataset1 = [[1, 1, 1], [1, 1, 1], [1, 2, 1], [2, 2, 1], [2, 2, 1],
+    #            [2, 2, 0], [2, 3, 0], [2, 3, 0], [1, 1, 0], [3, 2, 0]]
+    test_data = [
+        ['red', 25.6, 56, 1],
+        ['green', 33.3, 1, 1],
+        ['green', 2.5, 23, 0],
+        ['blue', 67.2, 111, 1],
+        ['red', 29.0, 34, 0],
+        ['yellow', 99.5, 78, 1],
+        ['yellow', 10.2, 23, 1],
+        ['yellow', 9.9, 30, 0],
+        ['blue', 67.0, 47, 0],
+        ['red', 41.8, 99, 1]
+    ]
+    test_attribute = ['color', 'average', 'age', 'class']
+    test_value_type = ['categorical', 'numerical', 'numerical', 'label']
+    test_data_after = pre_process(test_data, test_attribute, test_value_type)
+    dataObj = Dataset(test_data_after, test_value_type, test_attribute)
+
     minsup = 0.15
     minconf = 0.6
-    cars = rule_generator(dataset, minsup, minconf)
+    cars = rule_generator(dataObj, minsup, minconf)
 
     print("CARs:")
     cars.print_rule()
 
     print("prCARs:")
-    cars.prune_rules(dataset)
+    cars.prune_rules(dataObj)
     cars.print_pruned_rule()
