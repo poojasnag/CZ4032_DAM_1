@@ -7,147 +7,10 @@ Author: CBA Studio
 Reference: https://www.cs.uic.edu/~hxiao/courses/cs594-slides.pdf
 """
 import ruleitem
-import sys
-from cba_cb_m2 import errorsOfRule
-from dataset import Dataset
 from pre_processing import *
+from frequentRuleItems import *
+from car import *
 
-
-class FrequentRuleitems:
-    """
-    A set of frequent k-ruleitems, just using set.
-    """
-    def __init__(self):
-        self.frequent_ruleitems_set = set()
-
-    # get size of set
-    def get_size(self):
-        return len(self.frequent_ruleitems_set)
-
-    # add a new ruleitem into set
-    def add(self, rule_item):
-        is_existed = False
-        for item in self.frequent_ruleitems_set:
-            if item.class_label == rule_item.class_label:
-                if item.cond_set == rule_item.cond_set:
-                    is_existed = True
-                    break
-        if not is_existed:
-            self.frequent_ruleitems_set.add(rule_item)
-
-    # append set of ruleitems
-    def append(self, sets):
-        for item in sets.frequent_ruleitems:
-            self.add(item)
-
-    # print out all frequent ruleitems
-    def print(self):
-        for item in self.frequent_ruleitems_set:
-            item.print()
-
-
-class Car:
-    """
-    Class Association Rules (Car). If some ruleitems has the same condset, the ruleitem with the highest confidence is
-    chosen as the Possible Rule (PR). If there're more than one ruleitem with the same highest confidence, we randomly
-    select one ruleitem.
-    """
-    def __init__(self):
-        self.rules = set()
-        self.pruned_rules = set()
-
-    # print out all rules
-    def print_rule(self):
-        for item in self.rules:
-            item.print_rule()
-
-    # print out all pruned rules
-    def print_pruned_rule(self):
-        for item in self.pruned_rules:
-            item.print_rule()
-
-    # add a new rule (frequent & accurate), save the ruleitem with the highest confidence when having the same condset
-    def _add(self, rule_item, minsup, minconf):
-        if rule_item.support >= minsup and rule_item.confidence >= minconf:
-            if rule_item in self.rules:
-                return
-            for item in self.rules:
-                if item.cond_set == rule_item.cond_set and item.confidence < rule_item.confidence:
-                    self.rules.remove(item)
-                    self.rules.add(rule_item)
-                    return
-                elif item.cond_set == rule_item.cond_set and item.confidence >= rule_item.confidence:
-                    return
-            self.rules.add(rule_item)
-
-    # convert frequent ruleitems into car
-    def gen_rules(self, frequent_ruleitems, minsup_dict, minconf):
-        for item in frequent_ruleitems.frequent_ruleitems_set:
-            label = item.class_label
-            minsup = get_minsup(label, minsup_dict)
-            self._add(item, minsup, minconf)
-
-    # prune rules
-    def prune_rules(self, dataset):
-        for rule in self.rules:
-            # pruned_rule = prune(rule, dataset)  # return object
-            pruner = Prune(rule, dataset.data)
-            pruner.find_prune_rule(rule)
-            pruned_rule = pruner.pruned_rule
-            # print("pruned_rule", pruned_rule)
-            # print("class_label", pruned_rule.class_label)
-
-            is_existed = False
-            for rule in self.pruned_rules:
-                if rule.class_label == pruned_rule.class_label:
-                    if rule.cond_set == pruned_rule.cond_set:
-                        is_existed = True
-                        break
-
-            if not is_existed:
-                self.pruned_rules.add(pruned_rule)
-
-    # union new car into rules list
-    def append(self, car, minsup, minconf):
-        for item in car.rules:
-            self._add(item, minsup, minconf)
-
-class Prune:
-    def __init__(self, initial_rule, dataset):
-        self.dataset = dataset
-        self.min_rule_error = sys.maxsize
-        self.pruned_rule = initial_rule
-
-    def errors_of_rule(self, r):  # input rule
-        # import cba_cb_m2
-
-        # errors_number = 0
-        # for case in self.dataset:
-        #     if cba_cb_m2.is_satisfy(case, r) == False:
-        #     # if not cba_cb_m2.is_satisfy(case, r):
-        #         errors_number += 1
-        # return errors_number
-        return errorsOfRule(r, self.dataset)
-        
-  # prune rule recursively
-    def find_prune_rule(self, this_rule):
-        # calculate how many errors the rule r make in the dataset
-        rule_error = self.errors_of_rule(this_rule)
-        if rule_error < self.min_rule_error:
-            self.min_rule_error = rule_error
-            self.pruned_rule = this_rule
-        this_rule_cond_set = list(this_rule.cond_set)
-        if len(this_rule_cond_set) >= 2:
-            for attribute in this_rule_cond_set:
-                temp_cond_set = dict(this_rule.cond_set)
-                temp_cond_set.pop(attribute)
-                temp_rule = ruleitem.RuleItem(temp_cond_set, this_rule.class_label, self.dataset)
-                temp_rule_error = self.errors_of_rule(temp_rule)
-                if temp_rule_error <= self.min_rule_error:
-                    self.min_rule_error = temp_rule_error
-                    self.pruned_rule = temp_rule
-                    if len(temp_cond_set) >= 2:
-                        self.find_prune_rule(temp_rule)
 
 # invoked by candidate_gen, join two items to generate candidate
 def join(item1, item2, dataset):
@@ -164,27 +27,6 @@ def join(item1, item2, dataset):
         return new_ruleitem
     return None
 
-# def join1(item1, item2, dataset):
-#     if item1.class_label != item2.class_label:
-#         return None
-#     category1 = set(item1.cond_set) # {1}
-#     category2 = set(item2.cond_set) # {3}
-#     if category1 == category2:
-#         return None
-#     intersect = category1 & category2 # {}
-#     for item in intersect:
-#         if item1.cond_set[item] != item2.cond_set[item]:
-#             return None
-#     category = category1 | category2 # {1,3}
-#     new_cond_set = dict()
-#     for item in category:
-#         if item in category1:
-#             new_cond_set[item] = item1.cond_set[item]
-#         else:
-#             new_cond_set[item] = item2.cond_set[item]
-#     new_ruleitem = ruleitem.RuleItem(new_cond_set, item1.class_label, dataset)
-#     return new_ruleitem
-
 # TODO: replace this!!!
 # similar to Apriori-gen in algorithm Apriori
 def candidate_gen(frequent_ruleitems, dataset):
@@ -196,18 +38,15 @@ def candidate_gen(frequent_ruleitems, dataset):
                 returned_frequent_ruleitems.add(new_ruleitem)
                 if returned_frequent_ruleitems.get_size() >= 1000:      # not allow to store more than 1000 ruleitems
                     return returned_frequent_ruleitems
-    return returned_frequent_ruleitems
+    return returned_frequent_ruleitems                                 
 
 #################################################################### CBA-RG ######################################################################################
 
 # main method, implementation of CBA-RG algorithm
 def rule_generator(dataset, minsup_dict, minconf):
-
     frequent_ruleitems = FrequentRuleitems()
     car = Car()
-
     # FIRST SCAN (C1)
-
     for column in range(dataset.num_attributes):
         # distinct_value = set([x[column] for x in dataset])  # {1,2,3}
         distinct_value = dataset.get_distinct_values(column)
@@ -218,19 +57,15 @@ def rule_generator(dataset, minsup_dict, minconf):
                 rule_item = ruleitem.RuleItem(cond_set, classes, dataset)  # dataset.data
                 minsup = get_minsup(classes, minsup_dict)
                 if rule_item.support >= minsup:
-                    frequent_ruleitems.add(rule_item)
+                    frequent_ruleitems.add(rule_item)           # for indiv rule items 
     # L1
-    car.gen_rules(frequent_ruleitems, minsup_dict, minconf)
+    car.gen_rules(frequent_ruleitems, minsup_dict, minconf) # pass in indiv rule items, get rule item whcih includes minsup and conf
     cars = car
-
     # print(cars.rules.pop().__dict__)
-
     # {'cond_set': {1: 1}, 'class_label': 'Iris-versicolor', 'cond_sup_count': 72, 'rule_sup_count': 36, 'support': 0.26666666666666666, 'confidence': 0.5}
-
     last_cars_number = 0
-    current_cars_number = len(cars.rules)
-    while frequent_ruleitems.get_size() > 0 and current_cars_number <= 2000 and \
-                    (current_cars_number - last_cars_number) >= 10:
+    current_cars_number = len(car.rules)
+    while frequent_ruleitems.get_size() > 0 and current_cars_number <= 2000 and (current_cars_number - last_cars_number) >= 10:
         candidate = candidate_gen(frequent_ruleitems, dataset)
         frequent_ruleitems = FrequentRuleitems()
         car = Car()
@@ -240,47 +75,57 @@ def rule_generator(dataset, minsup_dict, minconf):
             if item.support >= minsup:
                 frequent_ruleitems.add(item)
         car.gen_rules(frequent_ruleitems, minsup_dict, minconf)
+        car.print_rule()
         cars.append(car, minsup, minconf)
         last_cars_number = current_cars_number
         current_cars_number = len(cars.rules)
-
+    return cars
     # print(cars.rules.pop().__dict__)
     # {'cond_set': {1: 2, 2: 1, 3: 1}, 'class_label': 'Iris-setosa', 'cond_sup_count': 18, 'rule_sup_count': 18, 'support': 0.13333333333333333, 'confidence': 1.0}
-
-    return cars
 
 
 # just for test
 if __name__ == "__main__":
+    from CrossValM2 import CrossValidationM2
+
+    minsup = 0.01
+    minconf = 0.5
+    test_data_path = 'datasets/tic-tac-toe.data'
+    test_scheme_path = 'datasets/tic-tac-toe.names'
+
+    validation = CrossValidationM2(test_data_path, test_scheme_path, minsup, minconf)
+
+    validation.cross_validation(multiple=False, dev=True) # multiple minsups
+
     # dataset1 = [[1, 1, 1], [1, 1, 1], [1, 2, 1], [2, 2, 1], [2, 2, 1],
     #            [2, 2, 0], [2, 3, 0], [2, 3, 0], [1, 1, 0], [3, 2, 0]]
-    test_data = [
-        ['red', 25.6, 56, 1],
-        ['green', 33.3, 1, 1],
-        ['green', 2.5, 23, 0],
-        ['blue', 67.2, 111, 1],
-        ['red', 29.0, 34, 0],
-        ['yellow', 99.5, 78, 1],
-        ['yellow', 10.2, 23, 1],
-        ['yellow', 9.9, 30, 0],
-        ['blue', 67.0, 47, 0],
-        ['red', 41.8, 99, 1]
-    ]
-    test_attribute = ['color', 'average', 'age', 'class']
-    test_value_type = ['categorical', 'numerical', 'numerical', 'label']
-    test_data_after = pre_process(test_data, test_attribute, test_value_type)
-    dataObj = Dataset(test_data_after, test_value_type, test_attribute)
+    # test_data = [
+    #     ['red', 25.6, 56, 1],
+    #     ['green', 33.3, 1, 1],
+    #     ['green', 2.5, 23, 0],
+    #     ['blue', 67.2, 111, 1],
+    #     ['red', 29.0, 34, 0],
+    #     ['yellow', 99.5, 78, 1],
+    #     ['yellow', 10.2, 23, 1],
+    #     ['yellow', 9.9, 30, 0],
+    #     ['blue', 67.0, 47, 0],
+    #     ['red', 41.8, 99, 1]
+    # ]
+    # test_attribute = ['color', 'average', 'age', 'class']
+    # test_value_type = ['categorical', 'numerical', 'numerical', 'label']
+    # test_data_after = pre_process(test_data, test_attribute, test_value_type)
+    # dataObj = Dataset(test_data_after, test_value_type, test_attribute)
 
-    minsup = 0.15
-    minconf = 0.6
+    # minsup = 0.15
+    # minconf = 0.6
+    # from CrossValM2 import CrossValidationM2
+    # minsup_dict = CrossValidationM2.class_minsup(test_data_after, minsup)
 
-    minsup_dict = class_minsup(dataObj, minsup)
+    # cars = rule_generator(test_data_after, minsup_dict, minconf)
 
-    cars = rule_generator(dataObj, minsup_dict, minconf)
+    # print("CARs:")
+    # cars.print_rule()
 
-    print("CARs:")
-    cars.print_rule()
-
-    print("prCARs:")
-    cars.prune_rules(dataObj)
-    cars.print_pruned_rule()
+    # print("prCARs:")
+    # cars.prune_rules(test_data_after)
+    # cars.print_pruned_rule()

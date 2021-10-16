@@ -85,7 +85,7 @@ class CrossValidationM2:
     #     class_freq = dict(class_freq)
     #     return class_freq
 
-    def cross_validation(self, multiple):
+    def cross_validation(self, multiple, dev=False):
         # read data
         data, attributes, value_type = read(self.data_path, self.scheme_path)
         random.Random(1).shuffle(data)
@@ -108,9 +108,17 @@ class CrossValidationM2:
             cars = rule_generator(train_dataset, self.class_minsup(dataset, multiple=multiple), self.minconf)
 
             # print(cars.rules.pop().condset)
+            if dev:
+                print("CARs:")
+                cars.print_rule()
 
             cars.prune_rules(train_dataset)
             cars.rules = cars.pruned_rules
+
+            if dev: 
+                print("prCARs:")
+                cars.print_pruned_rule()
+
             end_time = time.time()
             cba_rg_runtime = end_time-start_time
             self.cba_rg_total_runtime += cba_rg_runtime
