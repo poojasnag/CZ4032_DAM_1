@@ -11,7 +11,6 @@ from pre_processing import *
 from frequentRuleItems import *
 from car import *
 
-
 # invoked by candidate_gen, join two items to generate candidate
 def join(item1, item2, dataset):
     if item1.class_label != item2.class_label:
@@ -75,10 +74,10 @@ def rule_generator(dataset, minsup_dict, minconf):
             if item.support >= minsup:
                 frequent_ruleitems.add(item)
         car.gen_rules(frequent_ruleitems, minsup_dict, minconf)
-        car.print_rule()
         cars.append(car, minsup, minconf)
         last_cars_number = current_cars_number
         current_cars_number = len(cars.rules)
+    # car.print_rule()
     return cars
     # print(cars.rules.pop().__dict__)
     # {'cond_set': {1: 2, 2: 1, 3: 1}, 'class_label': 'Iris-setosa', 'cond_sup_count': 18, 'rule_sup_count': 18, 'support': 0.13333333333333333, 'confidence': 1.0}

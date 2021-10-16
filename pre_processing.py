@@ -19,7 +19,6 @@ import pandas as pd
 # arr: a list need to find mode
 def get_mode(arr):
     # print(arr)
-    exit()
     arr_appear = dict((a, arr.count(a)) for a in arr)   # count appearance times of each key
     if max(arr_appear.values()) == 1:       # if max time is 1
         return      # no mode here
@@ -81,7 +80,7 @@ def get_discretization_data(data_column):
 
 def replace_numerical(data, list_data, column_no):
     size = len(data)
-    new_list = list(pd.cut(list_data, 4, labels=False))
+    new_list = list(pd.cut(list_data, 3, labels=False))
     for i in range(size):
         data[i][column_no] = new_list[i]
     return data
@@ -130,7 +129,6 @@ def pre_process(data, attribute, value_type):
     discard_list = []
     for i in range(0, column_num - 1):
         data_column = [x[i] for x in data]
-
         # process missing values
         missing_values_ratio = data_column.count('?') / size
         if missing_values_ratio > 0.5:
@@ -139,7 +137,6 @@ def pre_process(data, attribute, value_type):
         elif missing_values_ratio > 0:
             data = fill_missing_values(data, i)
             data_column = [x[i] for x in data]
-
 
         # discretization
         if value_type[i] == 'numerical':
@@ -156,10 +153,11 @@ def pre_process(data, attribute, value_type):
             # data = replace_numerical(data, i, walls)
             list_data = get_discretization_data(data_column)
             replace_numerical(data,list_data,i)
-        elif value_type[i] == 'categorical':
+
+        # elif value_type[i] == 'categorical':
+        else:
             data, classes_no = replace_categorical(data, i)
             print(attribute[i] + ":", classes_no)   # print out replacement list
-
     # discard
     if len(discard_list) > 0:
         data = discard(data, discard_list)

@@ -11,7 +11,6 @@ Author: CBA Studio
 """
 from collections import namedtuple
 from functools import cmp_to_key
-
 import ruleitem
 
 class Classifier_m2:

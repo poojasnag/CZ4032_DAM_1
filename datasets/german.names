@@ -1,0 +1,2 @@
+status, month, credit_hist, purpose, credit_amt,saving_acc, emplyoyment, install, personal, debtors, residence, property, age, housing, exist_credit, job, num_people, telephone, foreign, class
+categorical, numerical, categorical,categorical,numerical, categorical,categorical,numerical,categorical,categorical,numerical,categorical,numerical,categorical,categorical,numerical,categorical,numerical,categorical,label
