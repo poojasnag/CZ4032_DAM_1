@@ -43,7 +43,7 @@ class CrossValidationM2:
         for idx in range(len(dataset)):  # case is e.g. [1, 1, 2, 2, 'Iris-versicolor']
             is_satisfy_value = False
             for rule in classifier.rule_list:
-                is_satisfy_value = is_satisfy(dataset[idx], rule, from_error=True)
+                is_satisfy_value = is_satisfy(dataset[idx], rule)
                 if is_satisfy_value == True:
                     pred_labels.append(dataset.get_label(idx))
                     break
