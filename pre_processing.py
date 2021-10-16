@@ -154,8 +154,8 @@ def pre_process(data, attribute, value_type):
             list_data = get_discretization_data(data_column)
             replace_numerical(data,list_data,i)
 
-        # elif value_type[i] == 'categorical':
-        else:
+        elif value_type[i] == 'categorical':
+        # else:
             data, classes_no = replace_categorical(data, i)
             print(attribute[i] + ":", classes_no)   # print out replacement list
     # discard

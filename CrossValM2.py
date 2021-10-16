@@ -9,7 +9,7 @@ from cba_rg import rule_generator
 from cba_cb_m2 import classifier_builder_m2, is_satisfy
 from collections import Counter
 
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
 
 
 class CrossValidationM2:
@@ -88,13 +88,13 @@ class CrossValidationM2:
     def cross_validation(self, multiple, dev=False):
         # read data
         data, attributes, value_type = read(self.data_path, self.scheme_path)
-        random.Random(1).shuffle(data)
+        # random.Random(2).shuffle(data)
         dataset = pre_process(data, attributes, value_type)
 
-        kf = KFold(n_splits=10)
+        kf = StratifiedKFold(n_splits=10, random_state=9, shuffle=True)
 
         k = 1
-        for train_idx, test_idx in kf.split(dataset):
+        for train_idx, test_idx in kf.split(dataset.get_values_list(),dataset.ground_truth_labels):
             print(f"========================== FOLD {k} ==========================")
 
             # train_dataset, test_dataset = self.create_train_test_ds(dataset, split, k)

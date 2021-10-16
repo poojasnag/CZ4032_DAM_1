@@ -30,3 +30,7 @@ class Dataset():
     def get_distinct_values(self, column):
         return set([x[column] for x in self.data])
 
+    def get_values_list(self):
+        return [x[:-1] for x in self.data]
+
+
