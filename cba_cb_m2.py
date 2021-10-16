@@ -13,56 +13,11 @@ from collections import namedtuple
 from functools import cmp_to_key
 
 import ruleitem
-
-class Classifier_m2:
-    """
-    The definition of classifier formed in CBA-CB: M2. It contains a list of rules order by their precedence, a default
-    class label. The other member are private and useless for outer code.
-    """
-    def __init__(self):
-        self.rule_list = list()
-        self.default_class = None
-        self._default_class_list = list()
-        self._total_errors_list = list()
-
-    # insert a new rule into classifier
-    def add(self, rule, default_class, total_errors):
-        self.rule_list.append(rule)
-        self._default_class_list.append(default_class)
-        self._total_errors_list.append(total_errors)
-
-    # discard those rules that introduce more errors. See line 18-20, CBA-CB: M2 (Stage 3).
-    def discard(self):
-        index = self._total_errors_list.index(min(self._total_errors_list))
-        self.rule_list = self.rule_list[:(index + 1)]
-        self._total_errors_list = None
-
-        self.default_class = self._default_class_list[index]
-        self._default_class_list = None
-
-    # just print out rules and default class label
-    def print(self):
-        for rule in self.rule_list:
-            rule.print_rule()
-        print("default_class:", self.default_class)
+from rule import Rule
+from classifier_m2 import Classifier_m2
 
 
-class Rule(ruleitem.RuleItem):
-    """
-    A class inherited from RuleItem, adding classCasesCovered and replace field.
-    """
-    def __init__(self, cond_set, class_label, dataset):
-        ruleitem.RuleItem.__init__(self, cond_set, class_label, dataset)
-        self._init_classCasesCovered(dataset)
-        self.replace = set()
-
-    # initialize the classCasesCovered field
-    def _init_classCasesCovered(self, dataset):
-        class_column = dataset.get_class_list() # [x[-1] for x in dataset]
-        class_label = set(class_column)
-        self.classCasesCovered = dict((x, 0) for x in class_label)
-
-def is_satisfy(datacase, rule, from_error=False):
+def is_satisfy(datacase, rule):
     for item in rule.cond_set:  # item = key of condset
         if datacase[item] != rule.cond_set[item]:  # check if datacase values match that of the rule's cond_set
             return None
@@ -84,6 +39,26 @@ def sort(car):
     rule_list = list(car.rules)
     rule_list.sort(key=cmp_to_key(cmp_method))
     return rule_list
+
+# compare two rule, return the precedence.
+#   -1: rule1 < rule2, 0: rule1 < rule2 (randomly here), 1: rule1 > rule2
+def compare(rule1, rule2):
+    if rule1 is None and rule2 is not None:
+        return -1
+    elif rule1 is None and rule2 is None:
+        return 0
+    elif rule1 is not None and rule2 is None:
+        return 1
+
+    return -comp_method(rule1, rule2)
+
+# sort the rule list order by precedence
+def sort_with_index(q, cars_list):
+    def cmp_method(a, b):
+        return comp_method(cars_list[a], cars_list[b])
+    rule_list = list(q)
+    rule_list.sort(key=cmp_to_key(cmp_method))
+    return set(rule_list)
 
 
 # convert ruleitem of class RuleItem to rule of class Rule
@@ -109,21 +84,6 @@ def maxCoverRule(cars_list, data_case, boolean):
                     return i
     return None
 
-
-
-# compare two rule, return the precedence.
-#   -1: rule1 < rule2, 0: rule1 < rule2 (randomly here), 1: rule1 > rule2
-def compare(rule1, rule2):
-    if rule1 is None and rule2 is not None:
-        return -1
-    elif rule1 is None and rule2 is None:
-        return 0
-    elif rule1 is not None and rule2 is None:
-        return 1
-
-    return -comp_method(rule1, rule2)
-
-
 # finds all the rules in u that wrongly classify the data case and have higher precedences than that of its cRule.
 def allCoverRules(u, data_case, c_rule, cars_list):
     w_set = set()
@@ -134,6 +94,7 @@ def allCoverRules(u, data_case, c_rule, cars_list):
             if is_satisfy(data_case, cars_list[rule_index]) == False:
                 w_set.add(rule_index)
     return w_set
+
 
 
 # counts the number of training cases in each class
@@ -155,15 +116,6 @@ def compClassDistr(dataset):
     # for c in class_label:
     #     class_distr[c] = class_column.count(c)
     return class_distr
-
-
-# sort the rule list order by precedence
-def sort_with_index(q, cars_list):
-    def cmp_method(a, b):
-        return comp_method(cars_list[a], cars_list[b])
-    rule_list = list(q)
-    rule_list.sort(key=cmp_to_key(cmp_method))
-    return set(rule_list)
 
 
 # get how many errors the rule wrongly classify the data case
