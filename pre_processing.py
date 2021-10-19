@@ -140,17 +140,6 @@ def pre_process(data, attribute, value_type):
 
         # discretization
         if value_type[i] == 'numerical':
-            # discretization_data = get_discretization_data(data_column, class_column)
-            # block = rmep.Block(discretization_data)
-            # walls = rmep.partition(block)
-            # if len(walls) == 0:
-            #     max_value = max(data_column)
-            #     min_value = min(data_column)
-            #     step = (max_value - min_value) / 3
-            #     walls.append(min_value + step)
-            #     walls.append(min_value + 2 * step)
-            # print(attribute[i] + ":", walls)        # print out split points
-            # data = replace_numerical(data, i, walls)
             list_data = get_discretization_data(data_column)
             replace_numerical(data,list_data,i)
 
@@ -172,23 +161,3 @@ def pre_process(data, attribute, value_type):
 def get_minsup(label, minsup_dict):
     minsup_value = minsup_dict.get(label)
     return minsup_value
-
-
-# just for test
-if __name__ == '__main__':
-    test_data = [
-        ['red', 25.6, 56, 1],
-        ['green', 33.3, 1, 1],
-        ['green', 2.5, 23, 0],
-        ['blue', 67.2, 111, 1],
-        ['red', 29.0, 34, 0],
-        ['yellow', 99.5, 78, 1],
-        ['yellow', 10.2, 23, 1],
-        ['yellow', 9.9, 30, 0],
-        ['blue', 67.0, 47, 0],
-        ['red', 41.8, 99, 1]
-    ]
-    test_attribute = ['color', 'average', 'age', 'class']
-    test_value_type = ['categorical', 'numerical', 'numerical', 'label']
-    test_data_after = pre_process(test_data, test_attribute, test_value_type)
-    print(test_data_after)
