@@ -1,6 +1,4 @@
-import random
 import time
-from absl import app
 from dataset import Dataset
 
 from read import read
@@ -10,7 +8,7 @@ from cba_cb_m2 import classifier_builder_m2, is_satisfy
 from collections import Counter
 
 from sklearn.model_selection import StratifiedKFold
-
+from sklearn.metrics import classification_report
 
 class CrossValidationM2:
     def __init__(self, data_path, scheme_path, minsup, minconf):
@@ -23,23 +21,15 @@ class CrossValidationM2:
         self.total_car_num = 0
         self.total_classifier_rule_num = 0
         self.total_error_rate = 0
+        self.total_prune_error_rate = 0
         self.pred_labels = []
-        # self.total_train = 0
-        # self.total_test = 0
+        self.ground_truth = []
         self.rules = set()
         self.num_folds = 10
 
 
     def get_error_rate(self, classifier, dataset, pred_labels):
         error_count = 0
-        # print('--RULES--')
-        # for idx, rule in enumerate(classifier.rule_list, start=1):
-        #     print(f'rule{idx}')
-        #     print(rule.__dict__)
-        # print("default class", classifier.default_class)
-        # print()
-        # print('----')
-
         for idx in range(len(dataset)):  # case is e.g. [1, 1, 2, 2, 'Iris-versicolor']
             is_satisfy_value = False
             for rule in classifier.rule_list:
@@ -76,19 +66,9 @@ class CrossValidationM2:
         class_freq = dict(class_freq)
         return class_freq
 
-    # def single_minsup(self, dataset):
-    #     # Store in dictionary with class as key and minsup as value
-    #     actual_labels = dataset.get_class_list()
-    #     class_freq = Counter(actual_labels)
-    #     for key in class_freq.items():
-    #         class_freq[key] = self.minsup
-    #     class_freq = dict(class_freq)
-    #     return class_freq
 
-    def cross_validation(self, multiple, dev=False):
-        # read data
+    def cross_validation(self, multiple=False, prune=False, dev=False):
         data, attributes, value_type = read(self.data_path, self.scheme_path)
-        # random.Random(2).shuffle(data)
         dataset = pre_process(data, attributes, value_type)
 
         kf = StratifiedKFold(n_splits=10, random_state=9, shuffle=True)
@@ -96,28 +76,18 @@ class CrossValidationM2:
         k = 1
         for train_idx, test_idx in kf.split(dataset.get_values_list(),dataset.ground_truth_labels):
             print(f"========================== FOLD {k} ==========================")
-
             # train_dataset, test_dataset = self.create_train_test_ds(dataset, split, k)
             train_dataset = Dataset(dataset.get_indexes(train_idx), dataset.value_types, dataset.attributes)
             test_dataset = Dataset(dataset.get_indexes(test_idx), dataset.value_types, dataset.attributes)
 
-            # self.total_train += len(train_dataset)
-            # self.total_test += len(test_dataset)
-
             start_time = time.time()
             cars = rule_generator(train_dataset, self.class_minsup(dataset, multiple=multiple), self.minconf)
 
-            # print(cars.rules.pop().condset)
-            if dev:
-                print("CARs:")
-                cars.print_rule()
 
-            cars.prune_rules(train_dataset)
-            cars.rules = cars.pruned_rules
+            if prune:
+                cars.prune_rules(train_dataset)
+                cars.rules = cars.pruned_rules
 
-            if dev: 
-                print("prCARs:")
-                cars.print_pruned_rule()
 
             end_time = time.time()
             cba_rg_runtime = end_time-start_time
@@ -136,25 +106,32 @@ class CrossValidationM2:
             self.total_classifier_rule_num += len(classifier.rule_list)
             k += 1
 
-            print("CBA error rate without pruning: %.1lf%%" % (error_rate*100))
-            print("CBA's error rate with pruning: %.1lf%%" % (error_rate * 100))
-            print("No. of CARs without pruning: %d" % len(cars.rules))
-            print("CBA-RG's run time with pruning: %.2lf s" % cba_rg_runtime)
-            print("CBA-CB M2's run time with pruning: %.2lf s" % cba_cb_runtime)
-            print("No. of rules in classifier of CBA-CB M2 with pruning: %d" % len(classifier.rule_list))
+            if prune:
+                print("CBA's error rate with pruning: %.1lf%%" % (error_rate * 100))
+                print("No. of CARs with pruning: %d" % len(cars.rules))
+                print("CBA-RG's run time with pruning: %.2lf s" % cba_rg_runtime)
+                print("CBA-CB M2's run time with pruning: %.2lf s" % cba_cb_runtime)
+                print("No. of rules in classifier of CBA-CB M2 with pruning: %d" % len(classifier.rule_list))
+            else:
+                print("CBA error rate without pruning: %.1lf%%" % (error_rate*100))
+                print("No. of CARs without pruning: %d" % len(cars.rules))
+                print("CBA-RG's run time without pruning: %.2lf s" % cba_rg_runtime)
+                print("CBA-CB M2's run time without pruning: %.2lf s" % cba_cb_runtime)
+                print("No. of rules in classifier of CBA-CB M2 without pruning: %d" % len(classifier.rule_list))
 
-        print("\nAverage CBA's error rate with pruning: %.1lf%%" % (self.total_error_rate / 10 * 100))
-        print("Average No. of CARs with pruning: %d" % int(self.total_car_num / 10))
-        print("Average CBA-RG's run time with pruning: %.2lf s" % (self.cba_rg_total_runtime / 10))
-        print("Average CBA-CB M2's run time with pruning: %.2lf s" % (self.cba_cb_total_runtime / 10))
-        print("Average No. of rules in classifier of CBA-CB M2 with pruning: %d" % int(self.total_classifier_rule_num / 10))
-        # print('ground_truth: ', self.ground_truth_labels)
-        # print('\n\n')
-        # print('pred: ', self.pred_labels)
-        # print(len(self.pred_labels))
+        if prune:
+            print("\nAverage CBA's error rate with pruning: %.1lf%%" % (self.total_error_rate / 10 * 100))
+            print("Average No. of CARs with pruning: %d" % int(self.total_car_num / 10))
+            print("Average CBA-RG's run time with pruning: %.2lf s" % (self.cba_rg_total_runtime / 10))
+            print("Average CBA-CB M2's run time with pruning: %.2lf s" % (self.cba_cb_total_runtime / 10))
+            print("Average No. of rules in classifier of CBA-CB M2 with pruning: %d" % int(self.total_classifier_rule_num / 10))
 
-
-
+        else:
+            print("\nAverage CBA's error rate without pruning: %.1lf%%" % (self.total_error_rate / 10 * 100))
+            print("Average No. of CARs without pruning: %d" % int(self.total_car_num / 10))
+            print("Average CBA-RG's run time without pruning: %.2lf s" % (self.cba_rg_total_runtime / 10))
+            print("Average CBA-CB M2's run time without pruning: %.2lf s" % (self.cba_cb_total_runtime / 10))
+            print("Average No. of rules in classifier of CBA-CB M2 without pruning: %d" % int(self.total_classifier_rule_num / 10))
 
 
 
