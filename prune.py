@@ -7,14 +7,10 @@ class Prune:
         self.dataset = dataset
         self.min_rule_error = sys.maxsize
         self.pruned_rule = initial_rule
-
-    # def errors_of_rule(self, r):  # input rule
-    #     return errorsOfRule(r, self.dataset)
         
   # prune rule recursively
     def find_prune_rule(self, this_rule):
         # calculate how many errors the rule r make in the dataset
-        # rule_error = self.errors_of_rule(this_rule)
         rule_error = errorsOfRule(this_rule, self.dataset)
         if rule_error < self.min_rule_error:
             self.min_rule_error = rule_error
@@ -25,7 +21,6 @@ class Prune:
                 temp_cond_set = dict(this_rule.cond_set)
                 temp_cond_set.pop(attribute)
                 temp_rule = ruleitem.RuleItem(temp_cond_set, this_rule.class_label, self.dataset)
-                # temp_rule_error = self.errors_of_rule(temp_rule)
                 temp_rule_error = errorsOfRule(temp_rule, self.dataset)
                 if temp_rule_error <= self.min_rule_error:
                     self.min_rule_error = temp_rule_error

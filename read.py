@@ -1,12 +1,4 @@
-"""
-Description: Read initial dataset and decode it into a list. Here we replace all missing value and discretizate
-    the numerical values.
-Input: initial dataset stored in *.data file, and scheme description stored in *.names file.
-Output: a data list after pre-processing.
-Author: CBA Studio
-"""
 import csv
-
 
 # Read dataset and convert into a list.
 # path: directory of *.data file.
@@ -20,7 +12,6 @@ def read_data(path):
             data.remove([])
     return data
 
-
 # Read scheme file *.names and write down attributes and value types.
 # path: directory of *.names file.
 def read_scheme(path):
@@ -29,7 +20,6 @@ def read_scheme(path):
         attributes = next(reader)
         value_type = next(reader)
     return attributes, value_type
-
 
 # convert string-type value into float-type.
 # data: data list returned by read_data.
@@ -42,7 +32,6 @@ def str2numerical(data, value_type):
             if value_type[j] == 'numerical' and data[i][j] != '?':
                 data[i][j] = float(data[i][j])
     return data
-
 
 # Main method in this file, to get data list after processing and scheme list.
 # data_path: tell where *.data file stores.

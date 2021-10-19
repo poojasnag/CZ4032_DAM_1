@@ -7,8 +7,8 @@ from car import *
 def join(item1, item2, dataset):
     if item1.class_label != item2.class_label:
         return None
-    category1 = item1.cond_set.items()  #set(item1.cond_set) 4:3 1:5
-    category2 = item2.cond_set.items() # set(item2.cond_set) 2:4 1:3
+    category1 = item1.cond_set.items() 
+    category2 = item2.cond_set.items() 
     if category1 == category2:
         return None
     intersect = dict(category1 & category2)

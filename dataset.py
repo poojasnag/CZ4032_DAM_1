@@ -1,6 +1,5 @@
 from typing import List
 
-
 class Dataset():
     def __init__(self, data, value_types, attributes):
         self.data = data  # [[0, 2, 0, 0, 'Iris-setosa'], ... ]

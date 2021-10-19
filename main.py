@@ -29,7 +29,5 @@ def main(argv):
     validation.cross_validation(multiple=FLAGS.multiple,
                                 prune=FLAGS.prune) # multiple minsups
 
-
-
 if __name__ =="__main__":
     app.run(main)

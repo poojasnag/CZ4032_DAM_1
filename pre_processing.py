@@ -29,17 +29,6 @@ def fill_missing_values(data, column_no):
             data[i][column_no] = mode              # fill in mode
     return data
 
-
-# Get the list needed by rmep.py, just glue the data column with class column.
-# data_column: the data column
-# class_column: the class label column
-# def get_discretization_data(data_column, class_column):
-#     size = len(data_column)
-#     result_list = []
-#     for i in range(size):
-#         result_list.append([data_column[i], class_column[i]])
-#     return result_list
-
 def get_discretization_data(data_column):
     size = len(data_column)
     result_list = []
@@ -47,30 +36,11 @@ def get_discretization_data(data_column):
         result_list.append(data_column[i])
     return result_list
 
-
-# Replace numerical data with the No. of interval, i.e. consecutive positive integers.
-# data: original data table
-# column_no: the column No. of that column
-# walls: the split point of the whole range
-# def replace_numerical(data, column_no, walls):
-#     size = len(data)
-#     num_spilt_point = len(walls)
-#     for i in range(size):
-#         if data[i][column_no] > walls[num_spilt_point - 1]:
-#             data[i][column_no] = num_spilt_point + 1
-#             continue
-#         for j in range(0, num_spilt_point):
-#             if data[i][column_no] <= walls[j]:
-#                 data[i][column_no] = j + 1
-#                 break
-#     return data
-
 def replace_numerical(data, list_data, column_no):
     size = len(data)
     new_list = list(pd.cut(list_data, 3, labels=False))
     for i in range(size):
         data[i][column_no] = new_list[i]
-    return data
 
 
 # Replace categorical values with a positive integer.

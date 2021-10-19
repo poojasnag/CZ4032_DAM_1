@@ -1,6 +1,5 @@
 from ruleitem import RuleItem
 
-
 class Rule(RuleItem):
     """
     A class inherited from RuleItem, adding classCasesCovered and replace field.
