@@ -132,8 +132,3 @@ class CrossValidationM2:
             print("Average CBA-RG's run time without pruning: %.2lf s" % (self.cba_rg_total_runtime / 10))
             print("Average CBA-CB M2's run time without pruning: %.2lf s" % (self.cba_cb_total_runtime / 10))
             print("Average No. of rules in classifier of CBA-CB M2 without pruning: %d" % int(self.total_classifier_rule_num / 10))
-
-
-
-
-

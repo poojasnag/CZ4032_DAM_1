@@ -52,14 +52,3 @@ def read(data_path, scheme_path):
     attributes, value_type = read_scheme(scheme_path)
     data = str2numerical(data, value_type)
     return data, attributes, value_type
-
-
-# just for test
-if __name__ == '__main__':
-    import pre_processing
-
-    test_data_path = '/Users/liulizhi/Desktop/iris.data'
-    test_scheme_path = '/Users/liulizhi/Desktop/iris.names'
-    test_data, test_attributes, test_value_type = read(test_data_path, test_scheme_path)
-    result_data = pre_processing.pre_process(test_data, test_attributes, test_value_type)
-    print(result_data)

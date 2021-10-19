@@ -1,7 +1,4 @@
 class FrequentRuleitems:
-    """
-    A set of frequent k-ruleitems, just using set.
-    """
     def __init__(self):
         self.frequent_ruleitems_set = set()
 

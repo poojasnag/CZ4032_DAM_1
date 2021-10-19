@@ -1,11 +1,3 @@
-"""
-Description: The implementation of CBA-RG algorithm, generating the complete set of CARs (Class Association Rules).
-    We just follow up algorithm raised up in the paper without improvement.
-Input: a dataset got from pre_process (see pre_processing.py), minsup and minconf
-Output: CARs
-Author: CBA Studio
-Reference: https://www.cs.uic.edu/~hxiao/courses/cs594-slides.pdf
-"""
 import ruleitem
 from pre_processing import *
 from frequentRuleItems import *

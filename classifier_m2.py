@@ -1,8 +1,5 @@
 class Classifier_m2:
-    """
-    The definition of classifier formed in CBA-CB: M2. It contains a list of rules order by their precedence, a default
-    class label. The other member are private and useless for outer code.
-    """
+
     def __init__(self):
         self.rule_list = list()
         self.default_class = None

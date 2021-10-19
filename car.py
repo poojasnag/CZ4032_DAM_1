@@ -2,11 +2,7 @@ from prune import *
 from pre_processing import *
 
 class Car:
-    """
-    Class Association Rules (Car). If some ruleitems has the same condset, the ruleitem with the highest confidence is
-    chosen as the Possible Rule (PR). If there're more than one ruleitem with the same highest confidence, we randomly
-    select one ruleitem.
-    """
+
     def __init__(self):
         self.rules = set()
         self.pruned_rules = set()

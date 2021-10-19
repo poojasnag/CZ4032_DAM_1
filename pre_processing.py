@@ -1,16 +1,3 @@
-"""
-Description: Pre-process original data. Firstly, we process the missing values (donated as '?'), discarding this column
-    when missing ratio above 50%, or filling blanks when below. We "guess" missing values by simply filling the mode of
-    existing values in the same column. And then, for the numerical attribute, we discretizate it by recursive minimal
-    entropy partitioning (see rmep.py). For the categorical attribute, we just replace the label with a
-    positive integer. For more information, see [1].
-Input: a data table with several data case, many attributes and class label in the last column, a list of the name of
-    each attribute, and a list of the type of each column.
-Output: a data list without numerical values and "str" categorical values.
-Author: CBA Studio
-Reference:
-    1. http://cgi.csc.liv.ac.uk/~frans/KDD/Software/LUCS-KDD-DN/lucs-kdd_DN.html
-"""
 import numpy as np
 import pandas as pd
 
