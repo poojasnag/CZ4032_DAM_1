@@ -1,0 +1,2 @@
+FavoriteColor,FavoriteMusicGenre,FavoriteBeverage,FavoriteSoftDrink,Gender
+categorical, categorical,categorical,categorical,label
