@@ -18,26 +18,46 @@ def is_satisfy(datacase:dict , rule:Rule) -> bool:
             return None
     return True if datacase[-1] == rule.class_label else False
 
-# sort the set of generated rules car according to the relation ">", return the sorted rule list
+
 def compare_len(a,b):
+    """
+    Comparing length of rules
+    Sort the set of generated rules car according to the relation ">", return the sorted rule list
+    """
     return -1 if len(a.cond_set) < len(b.cond_set) else 0 if len(a.cond_set) == len(b.cond_set) else 1
 
+
 def compare_support(a,b):
+    """
+    Comparing support of rules
+    Sort the set of generated rules car according to the relation ">", return the sorted rule list
+    """
     return 1 if a.support<b.support else compare_len(a,b) if a.support==b.support else -1
 
+
 def comp_method(a,b):
+    """
+    Main compare method
+    """
     return 1 if a.confidence<b.confidence else compare_support(a,b) if a.confidence==b.confidence else -1
 
+
 def sort(car):
+    """
+    Sort rules based on the comp_method
+    """
     def cmp_method(a,b):
         return comp_method(a,b)
     rule_list = list(car.rules)
     rule_list.sort(key=cmp_to_key(cmp_method))
     return rule_list
 
-# compare two rule, return the precedence.
-#   -1: rule1 < rule2, 0: rule1 < rule2 (randomly here), 1: rule1 > rule2
+
 def compare(rule1, rule2) -> int:
+    """
+    Compare two rule, return the precedence.
+    -1: rule1 < rule2, 0: rule1 < rule2 (randomly here), 1: rule1 > rule2
+    """
     if rule1 is None and rule2 is not None:
         return -1
     elif rule1 is None and rule2 is None:
@@ -47,8 +67,12 @@ def compare(rule1, rule2) -> int:
 
     return -comp_method(rule1, rule2)
 
-# sort the rule list order by precedence
+
 def sort_with_index(q, cars_list) -> set:
+    """
+    Sort the rule list order by precedence
+
+    """
     def cmp_method(a, b):
         return comp_method(cars_list[a], cars_list[b])
     rule_list = list(q)
@@ -56,16 +80,20 @@ def sort_with_index(q, cars_list) -> set:
     return set(rule_list)
 
 
-# convert ruleitem of class RuleItem to rule of class Rule
 def ruleitem2rule(rule_item, dataset) -> Rule:
+    """
+    convert ruleitem of class RuleItem to rule of class Rule
+    """
     rule = Rule(rule_item.cond_set, rule_item.class_label, dataset)
     return rule
 
 
-# finds the highest precedence rule that covers the data case d from the set of rules having
-#   if boolean == True: same class as d
-#   if boolean == False: different class as d.
 def maxCoverRule(cars_list, data_case, boolean):
+    """
+    finds the highest precedence rule that covers the data case d from the set of rules having
+    if boolean == True: same class as d
+    if boolean == False: different class as d.
+    """
     for i in range(len(cars_list)):
         if boolean == True:
             if cars_list[i].class_label == data_case[-1]:
@@ -79,8 +107,11 @@ def maxCoverRule(cars_list, data_case, boolean):
                     return i
     return None
 
-# finds all the rules in u that wrongly classify the data case and have higher precedences than that of its cRule.
+
 def allCoverRules(u, data_case, c_rule, cars_list):
+    """
+    Finds all the rules in u that wrongly classify the data case and have higher precedences than that of its cRule.
+    """
     w_set = set()
     for rule_index in u:
         # have higher precedences than cRule
@@ -92,8 +123,10 @@ def allCoverRules(u, data_case, c_rule, cars_list):
 
 
 
-# counts the number of training cases in each class
 def compClassDistr(dataset:Dataset) -> dict:
+    """
+    Counts the number of training cases in each class
+    """
     from collections import Counter
     class_distr = dict()
 
@@ -109,7 +142,6 @@ def compClassDistr(dataset:Dataset) -> dict:
     return class_distr
 
 
-
 def errorsOfRule(rule, dataset) -> int:
     """
     Get how many errors the rule wrongly classify the data case
@@ -120,7 +152,6 @@ def errorsOfRule(rule, dataset) -> int:
             if is_satisfy(case, rule) == False:
                 error_number += 1
     return error_number
-
 
 
 def selectDefault(class_distribution):
