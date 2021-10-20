@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from utils.dataset import Dataset
 
 # Identify the mode of a list, both effective for numerical and categorical list. When there exists too many modes
 #   having the same frequency, return the first one.
@@ -108,13 +109,13 @@ def pre_process(data, attribute, value_type):
     if len(discard_list) > 0:
         data = discard(data, discard_list)
         print("discard:", discard_list)             # print out discard list
-    from dataset import Dataset
+
 
     data = Dataset(data, value_type, attribute)
     return data
 
 # multiple minsup
-# get unique minsup value for that class label 
+# get unique minsup value for that class label
 def get_minsup(label, minsup_dict):
     minsup_value = minsup_dict.get(label)
     return minsup_value

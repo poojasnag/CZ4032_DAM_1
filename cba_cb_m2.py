@@ -1,9 +1,9 @@
 from collections import namedtuple
 from functools import cmp_to_key
 
-import ruleitem
-from rule import Rule
-from classifier_m2 import Classifier_m2
+from utils import ruleitem
+from utils.rule import Rule
+from utils.classifier_m2 import Classifier_m2
 
 
 def is_satisfy(datacase, rule):
@@ -100,10 +100,6 @@ def compClassDistr(dataset):
 
     class_column = dataset_without_null.get_class_list()
     class_distr = dict(Counter(class_column))
-    # class_column = dataset_without_null.get_class_labels()
-    # class_label = set(class_column)
-    # for c in class_label:
-    #     class_distr[c] = class_column.count(c)
     return class_distr
 
 

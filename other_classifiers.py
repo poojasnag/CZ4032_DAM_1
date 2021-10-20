@@ -2,14 +2,13 @@ import argparse
 import pandas as pd
 
 from sklearn.metrics import make_scorer, accuracy_score, log_loss, classification_report
-from sklearn.model_selection import cross_validate, cross_val_predict, cross_val_score
+from sklearn.model_selection import cross_validate
 import warnings
 
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
-from sklearn.linear_model import LogisticRegression
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -19,7 +18,6 @@ parser.add_argument('--filename', "-f", default="iris", help="Dataset name")
 
 
 def preprocess_data(dataset):
-    # le = preprocessing.LabelEncoder()
     names = pd.read_csv(f'datasets/{dataset}.names', header=None)
     header = list(names.iloc[0,])
     data = pd.read_csv(f'datasets/{dataset}.data', names = header)

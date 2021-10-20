@@ -1,4 +1,4 @@
-from ruleitem import RuleItem
+from utils.ruleitem import RuleItem
 
 class Rule(RuleItem):
     """

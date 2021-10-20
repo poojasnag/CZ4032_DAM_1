@@ -51,17 +51,3 @@ class RuleItem:
         cond_set_output = '{' + cond_set_output[:-2] + '}'
         print(cond_set_output + ' -> (class, ' + str(self.class_label) + ')')
 
-
-# just for test
-if __name__ == '__main__':
-    cond_set = {0: 1, 1: 1}
-    class_label = 1
-    dataset = [[1, 1, 1], [1, 1, 1], [1, 2, 1], [2, 2, 1], [2, 2, 1],
-               [2, 2, 0], [2, 3, 0], [2, 3, 0], [1, 1, 0], [3, 2, 0]]
-    rule_item = RuleItem(cond_set, class_label, dataset)
-    rule_item.print()
-    rule_item.print_rule()
-    print('condsupCount =', rule_item.cond_sup_count)   # should be 3
-    print('rulesupCount =', rule_item.rule_sup_count)   # should be 2
-    print('support =', rule_item.support)               # should be 0.2
-    print('confidence =', rule_item.confidence)         # should be 0.667

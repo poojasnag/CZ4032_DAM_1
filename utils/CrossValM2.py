@@ -1,8 +1,8 @@
 import time
-from dataset import Dataset
+from utils.dataset import Dataset
 
-from read import read
-from pre_processing import pre_process
+from utils.read import read
+from utils.pre_processing import pre_process
 from cba_rg import rule_generator
 from cba_cb_m2 import classifier_builder_m2, is_satisfy
 from collections import Counter
@@ -30,7 +30,7 @@ class CrossValidationM2:
 
     def get_error_rate(self, classifier, dataset, pred_labels):
         error_count = 0
-        for idx in range(len(dataset)):  # case is e.g. [1, 1, 2, 2, 'Iris-versicolor']
+        for idx in range(len(dataset)): 
             is_satisfy_value = False
             for rule in classifier.rule_list:
                 is_satisfy_value = is_satisfy(dataset[idx], rule)
@@ -71,12 +71,11 @@ class CrossValidationM2:
         data, attributes, value_type = read(self.data_path, self.scheme_path)
         dataset = pre_process(data, attributes, value_type)
 
-        kf = StratifiedKFold(n_splits=10, random_state=9, shuffle=True)
+        kf = StratifiedKFold(n_splits=10, random_state=42, shuffle=True)
 
         k = 1
         for train_idx, test_idx in kf.split(dataset.get_values_list(),dataset.ground_truth_labels):
             print(f"========================== FOLD {k} ==========================")
-            # train_dataset, test_dataset = self.create_train_test_ds(dataset, split, k)
             train_dataset = Dataset(dataset.get_indexes(train_idx), dataset.value_types, dataset.attributes)
             test_dataset = Dataset(dataset.get_indexes(test_idx), dataset.value_types, dataset.attributes)
 

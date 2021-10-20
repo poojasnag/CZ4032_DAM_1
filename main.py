@@ -1,6 +1,6 @@
 from absl import app
 from absl import flags
-from CrossValM2 import CrossValidationM2
+from utils.CrossValM2 import CrossValidationM2
 
 
 FLAGS = flags.FLAGS

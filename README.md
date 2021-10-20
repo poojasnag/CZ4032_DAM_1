@@ -50,20 +50,27 @@ We handpicked 4 other classifiers, namely: Decision Tree, Random Forest, SVM and
 
 
 ## Python files
+### Driver files
+- main.py: **** run this file ****
+- other_classifiers.py: other classifiers to compare with the CBA-CB
+
+### CBA logic
 - cba_rg.py: CBA rule generator
 - cba_cb_m2.py: CBA classifier builder M2
+
+
+### Utility files
+Inside `utils/`
 - pre_processing.py: pre-processing for the data
 - car.py: define Class Association Rules (CAR)
 - dataset.py: define dataset class
 - frequentRuleItems.py: define frequentRuleItems class
-- other_classifiers.py: other classifiers to compare with the CBA-CB
 - prune.py: to find the pruning rules for the classifier
 - read.py: to read the dataset
 - rule.py: define a rule
 - ruleitem.py: define a ruleitem
 - classifier_m2.py: definition of classifier formed in CBA-CB M2
 - CrossValM2.py: cross validation for classifier
-- main.py: **** run this file ****
 
 
 ## Reference
