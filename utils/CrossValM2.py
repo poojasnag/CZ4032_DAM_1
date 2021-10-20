@@ -30,7 +30,10 @@ class CrossValidationM2:
         self.num_folds = 10
 
 
-    def get_error_rate(self, classifier, dataset, pred_labels):
+    def get_error_rate(self, classifier, dataset, pred_labels) -> float:
+        """
+        Evaluation metric to get error rate by iterating through the dataset and rules in classifier.
+        """
         error_count = 0
         for idx in range(len(dataset)):
             is_satisfy_value = False
@@ -47,8 +50,12 @@ class CrossValidationM2:
                     pred_labels.append(classifier.default_class)
         return error_count / len(dataset)
 
-    # dictionary for multiple minsup values
-    def class_minsup(self, dataset, multiple=False):
+
+    def class_minsup(self, dataset, multiple=False) -> dict:
+        """
+        Advanced Part: Multiple Minsups. Create unique minsup value for each class based on class distribution.
+        :return: dict of class:minsup
+        """
         # Store in dictionary with class as key and minsup as value
         actual_labels = dataset.get_class_list()
         class_freq = Counter(actual_labels)
@@ -62,7 +69,10 @@ class CrossValidationM2:
         return class_freq
 
 
-    def cross_validation(self, multiple=False, prune=False, dev=False):
+    def cross_validation(self, multiple=False, prune=False):
+        """
+        Main logic. Calls functions from preprocessing to evaluation.
+        """
         data, attributes, value_type = read(self.data_path, self.scheme_path)
         dataset = pre_process(data, attributes, value_type)
 

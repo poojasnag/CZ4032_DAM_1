@@ -1,7 +1,5 @@
 from collections import namedtuple
-from csv import DictWriter
 from functools import cmp_to_key
-from typing import List
 
 from utils import ruleitem
 from utils.dataset import Dataset

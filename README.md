@@ -50,6 +50,8 @@ We handpicked 4 other classifiers, namely: Decision Tree, Random Forest, SVM and
 
 `./other_classifiers.py --filename iris `
 
+## Advanced Part - Multiple Minsups
+We created an adaptive minsup, where there is a different minsup for each class depending on the class distribution. Code can be found in `CrossValM2.py` under `class_minsup()` method.
 
 ## Python files
 ### Driver files
