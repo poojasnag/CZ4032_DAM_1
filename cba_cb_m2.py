@@ -1,14 +1,20 @@
 from collections import namedtuple
+from csv import DictWriter
 from functools import cmp_to_key
+from typing import List
 
 from utils import ruleitem
+from utils.dataset import Dataset
 from utils.rule import Rule
 from utils.classifier_m2 import Classifier_m2
 
 
-def is_satisfy(datacase, rule):
-    for item in rule.cond_set:  # item = key of condset
-        if datacase[item] != rule.cond_set[item]:  # check if datacase values match that of the rule's cond_set
+def is_satisfy(datacase:dict , rule:Rule) -> bool:
+    """
+    Check if datacase matches with rule's condset. If it matches, check if the rule's class label accurately predicts the datacase's class.
+    """
+    for item in rule.cond_set:
+        if datacase[item] != rule.cond_set[item]:
             return None
     return True if datacase[-1] == rule.class_label else False
 
@@ -31,7 +37,7 @@ def sort(car):
 
 # compare two rule, return the precedence.
 #   -1: rule1 < rule2, 0: rule1 < rule2 (randomly here), 1: rule1 > rule2
-def compare(rule1, rule2):
+def compare(rule1, rule2) -> int:
     if rule1 is None and rule2 is not None:
         return -1
     elif rule1 is None and rule2 is None:
@@ -42,7 +48,7 @@ def compare(rule1, rule2):
     return -comp_method(rule1, rule2)
 
 # sort the rule list order by precedence
-def sort_with_index(q, cars_list):
+def sort_with_index(q, cars_list) -> set:
     def cmp_method(a, b):
         return comp_method(cars_list[a], cars_list[b])
     rule_list = list(q)
@@ -51,7 +57,7 @@ def sort_with_index(q, cars_list):
 
 
 # convert ruleitem of class RuleItem to rule of class Rule
-def ruleitem2rule(rule_item, dataset):
+def ruleitem2rule(rule_item, dataset) -> Rule:
     rule = Rule(rule_item.cond_set, rule_item.class_label, dataset)
     return rule
 
@@ -87,7 +93,7 @@ def allCoverRules(u, data_case, c_rule, cars_list):
 
 
 # counts the number of training cases in each class
-def compClassDistr(dataset):
+def compClassDistr(dataset:Dataset) -> dict:
     from collections import Counter
     class_distr = dict()
 
@@ -103,8 +109,11 @@ def compClassDistr(dataset):
     return class_distr
 
 
-# get how many errors the rule wrongly classify the data case
-def errorsOfRule(rule, dataset):
+
+def errorsOfRule(rule, dataset) -> int:
+    """
+    Get how many errors the rule wrongly classify the data case
+    """
     error_number = 0
     for case in dataset:
         if case:
@@ -113,8 +122,11 @@ def errorsOfRule(rule, dataset):
     return error_number
 
 
-# choose the default class (majority class in remaining dataset)
+
 def selectDefault(class_distribution):
+    """
+    Choose the default class (majority class in remaining dataset)
+    """
     if class_distribution is None:
         return None
 
@@ -127,8 +139,10 @@ def selectDefault(class_distribution):
     return default_class
 
 
-# count the number of errors that the default class will make in the remaining training data
-def defErr(default_class, class_distribution):
+def defErr(default_class, class_distribution) -> int:
+    """
+    Count the number of errors that the default class will make in the remaining training data
+    """
     if class_distribution is None:
         import sys
         return sys.maxsize
@@ -140,10 +154,9 @@ def defErr(default_class, class_distribution):
     return error
 
 
-# main method, implement the whole classifier builder
-def classifier_builder_m2(cars, dataset):
+def classifier_builder_m2(cars, dataset:Dataset) -> Classifier_m2:
     """
-    :param dataset: Dataset instance
+    Main method of cba_cb_m2. Contains logic for Stage 1-3 to build classifier.
     """
     classifier = Classifier_m2()
     cars_list = sort(cars)
@@ -195,8 +208,8 @@ def classifier_builder_m2(cars, dataset):
                 cars_list[w].replace.add(r_item)
                 cars_list[w].classCasesCovered[entry.class_label] += 1
             q |= w_set
-    # stage 3
 
+    # stage 3
     rule_errors = 0
     q = sort_with_index(q, cars_list)
     data_cases_covered = list([False] * len(dataset))

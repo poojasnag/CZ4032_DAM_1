@@ -11,6 +11,6 @@ class Rule(RuleItem):
 
     # initialize the classCasesCovered field
     def _init_classCasesCovered(self, dataset):
-        class_column = dataset.get_class_list() # [x[-1] for x in dataset]
+        class_column = dataset.get_class_list()
         class_label = set(class_column)
         self.classCasesCovered = dict((x, 0) for x in class_label)

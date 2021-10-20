@@ -1,33 +1,32 @@
-from absl import app
-from absl import flags
+import argparse
 from utils.CrossValM2 import CrossValidationM2
 
+parser = argparse.ArgumentParser()
 
-FLAGS = flags.FLAGS
-
-flags.DEFINE_string('filename', 'iris', 'Path to data file.')
-flags.DEFINE_boolean('debug', False, 'Produces debugging output.')
-flags.DEFINE_boolean('prune', False, 'True if pruning.')
-flags.DEFINE_float('minsup', 0.01, 'Minimum support level')
-flags.DEFINE_float('minconf', 0.5, 'Minimum confidence level')
-flags.DEFINE_boolean('multiple', False, "Multiple minsup")
+parser.add_argument('--filename', "-f", default="iris", help="Dataset name")
+parser.add_argument('--debug', action='store_true', help="Set to true for debugging")
+parser.add_argument('--prune', '-p', action='store_true', help="Set to true for pruning")
+parser.add_argument('--minsup', type=float, default=0.05, help='Minimum support level')
+parser.add_argument('--minconf', type=float, default=0.5, help='Minimum confidence level')
+parser.add_argument('--multiple', action='store_true', help="Multiple minsup")
 
 
-def main(argv):
-    if FLAGS.debug:
-        print("Non-flag arguments:", argv)
-    data_path = f"./datasets/{FLAGS.filename}.data"
-    scheme_path = f"./datasets/{FLAGS.filename}.names"
+def main(args):
+    if args.debug:
+        print("Non-flag arguments:", args)
+    data_path = f"./datasets/{args.filename}.data"
+    scheme_path = f"./datasets/{args.filename}.names"
     print("data_path:", data_path)
     print("scheme_path:", scheme_path)
-    minsup = FLAGS.minsup
-    minconf = FLAGS.minconf
+    minsup = args.minsup
+    minconf = args.minconf
 
     validation = CrossValidationM2(data_path, scheme_path, minsup, minconf)
 
-    print(f"Prune: {FLAGS.prune}, Multiple Minsup: {FLAGS.multiple}")
-    validation.cross_validation(multiple=FLAGS.multiple,
-                                prune=FLAGS.prune) # multiple minsups
+    print(f"Prune: {args.prune}, Multiple Minsup: {args.multiple}")
+    validation.cross_validation(multiple=args.multiple,
+                                prune=args.prune) # multiple minsups
 
 if __name__ =="__main__":
-    app.run(main)
+    args = parser.parse_args()
+    main(args)

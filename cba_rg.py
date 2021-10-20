@@ -3,8 +3,10 @@ from utils.pre_processing import *
 from utils.frequentRuleItems import *
 from utils.car import *
 
-# invoked by candidate_gen, join two items to generate candidate
-def join(item1, item2, dataset):
+def join(item1: FrequentRuleitems, item2: FrequentRuleitems, dataset: Dataset) -> ruleitem.RuleItem:
+    """
+    Invoked by candidate_gen, join two items to generate candidate
+    """
     if item1.class_label != item2.class_label:
         return None
     category1 = item1.cond_set.items()
@@ -18,8 +20,10 @@ def join(item1, item2, dataset):
         return new_ruleitem
     return None
 
-# similar to Apriori-gen in algorithm Apriori
-def candidate_gen(frequent_ruleitems, dataset):
+def candidate_gen(frequent_ruleitems: FrequentRuleitems, dataset: Dataset) -> FrequentRuleitems:
+    """
+    Similar to Apriori-gen in algorithm Apriori
+    """
     returned_frequent_ruleitems = FrequentRuleitems()
     for item1 in frequent_ruleitems.frequent_ruleitems_set:
         for item2 in frequent_ruleitems.frequent_ruleitems_set:
@@ -30,29 +34,32 @@ def candidate_gen(frequent_ruleitems, dataset):
                     return returned_frequent_ruleitems
     return returned_frequent_ruleitems
 
-# main method, implementation of CBA-RG algorithm
-def rule_generator(dataset, minsup_dict, minconf):
+def rule_generator(dataset: Dataset, minsup_dict: dict, minconf: float) -> Car:
+    """
+    Main method, implementation of CBA-RG algorithm
+    """
     frequent_ruleitems = FrequentRuleitems()
     car = Car()
+
     # FIRST SCAN (C1)
     for column in range(dataset.num_attributes):
-        # distinct_value = set([x[column] for x in dataset])  # {1,2,3}
         distinct_value = dataset.get_distinct_values(column)
         for value in distinct_value:
             cond_set = {column: value}
-            # for classes in class_label:
             for classes in set(dataset.get_class_list()):
-                rule_item = ruleitem.RuleItem(cond_set, classes, dataset)  # dataset.data
+                rule_item = ruleitem.RuleItem(cond_set, classes, dataset)
                 minsup = get_minsup(classes, minsup_dict)
                 if rule_item.support >= minsup:
-                    frequent_ruleitems.add(rule_item)           # for indiv rule items
-    # L1
+                    frequent_ruleitems.add(rule_item)
+
     car.gen_rules(frequent_ruleitems, minsup_dict, minconf) # pass in indiv rule items, get rule item whcih includes minsup and conf
     cars = car
     last_cars_number = 0
     current_cars_number = len(car.rules)
+
+    # Combine and generate ruleitems while ruletimes are valid
     while frequent_ruleitems.get_size() > 0 and current_cars_number <= 2000 and (current_cars_number - last_cars_number) >= 10:
-        candidate = candidate_gen(frequent_ruleitems, dataset)
+        candidate = candidate_gen(frequent_ruleitems, dataset)  # generate candidate ruletimes
         frequent_ruleitems = FrequentRuleitems()
         car = Car()
         for item in candidate.frequent_ruleitems_set:

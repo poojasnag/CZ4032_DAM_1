@@ -1,10 +1,9 @@
 import argparse
 import pandas as pd
+import warnings
 
 from sklearn.metrics import make_scorer, accuracy_score, log_loss, classification_report
 from sklearn.model_selection import cross_validate
-import warnings
-
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
@@ -14,7 +13,6 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--filename', "-f", default="iris", help="Dataset name")
-
 
 
 def preprocess_data(dataset):
@@ -46,7 +44,7 @@ if __name__ == "__main__":
     X, y = preprocess_data(args.filename)
 
     cv = 3 if args.filename == 'glass' else 10
-    print(f"========================== Decision Tree ==========================")
+    print("========================== Decision Tree ==========================")
     originalclass = []
     predictedclass = []
     dectree = DecisionTreeClassifier(random_state=2)
@@ -59,7 +57,7 @@ if __name__ == "__main__":
 
 
 
-    print(f"========================== Random Forest ==========================")
+    print("========================== Random Forest ==========================")
     originalclass = []
     predictedclass = []
     rforest = RandomForestClassifier(random_state=2)
@@ -71,11 +69,11 @@ if __name__ == "__main__":
     print(classification_report(originalclass, predictedclass))
 
     print()
-    print(f"========================== SVM ==========================")
+    print("========================== SVM ==========================")
 
     originalclass = []
     predictedclass = []
-    svm_model=SVC(gamma='scale', probability=True)
+    svm_model = SVC(gamma='scale', probability=True)
     svm_model.fit(X, y.values.ravel())
     svm_results = cross_validate(svm_model, X, y.values.ravel(), cv=cv, scoring=SCORE_MODELS)
 
@@ -85,7 +83,7 @@ if __name__ == "__main__":
     print(classification_report(originalclass, predictedclass))
 
     print()
-    print(f"========================== Naive Bayes ==========================")
+    print("========================== Naive Bayes ==========================")
 
     originalclass = []
     predictedclass = []

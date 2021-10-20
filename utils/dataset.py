@@ -1,4 +1,7 @@
 class Dataset():
+    """
+    To create a dataset instance with methods to store and retrieve datacases, unique class labels etc
+    """
     def __init__(self, data, value_types, attributes):
         self.data = data  # [[0, 2, 0, 0, 'Iris-setosa'], ... ]
         self.value_types = value_types  # ['numerical', 'numerical', 'numerical', 'numerical', 'label']

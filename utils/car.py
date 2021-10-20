@@ -2,7 +2,9 @@ from utils.prune import *
 from utils.pre_processing import *
 
 class Car:
-
+    """
+    Classification Association Rule (CAR)
+    """
     def __init__(self):
         self.rules = set()
         self.pruned_rules = set()

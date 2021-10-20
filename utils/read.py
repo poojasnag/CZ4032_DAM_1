@@ -1,8 +1,12 @@
 import csv
+from typing import List
 
-# Read dataset and convert into a list.
-# path: directory of *.data file.
-def read_data(path):
+def read_data(path: str) -> List:
+    """
+    Read dataset and convert into a list.
+
+    :param path: directory of *.data file.
+    """
     data = []
     with open(path, 'r') as csv_file:
         reader = csv.reader(csv_file, delimiter=',')
@@ -12,19 +16,27 @@ def read_data(path):
             data.remove([])
     return data
 
-# Read scheme file *.names and write down attributes and value types.
-# path: directory of *.names file.
-def read_scheme(path):
+
+def read_scheme(path: str):
+    """
+    Read scheme file *.names and write down attributes and value types.
+
+    :param path: directory of *.names file.
+    """
     with open(path, 'r') as csv_file:
         reader = csv.reader(csv_file, delimiter=',')
         attributes = next(reader)
         value_type = next(reader)
     return attributes, value_type
 
-# convert string-type value into float-type.
-# data: data list returned by read_data.
-# value_type: list returned by read_scheme.
+
 def str2numerical(data, value_type):
+    """
+    convert string-type value into float-type.
+
+    :param data: data list returned by read_data.
+    :param value_type: list returned by read_scheme.
+    """
     size = len(data)
     columns = len(data[0])
     for i in range(size):
@@ -33,10 +45,14 @@ def str2numerical(data, value_type):
                 data[i][j] = float(data[i][j])
     return data
 
-# Main method in this file, to get data list after processing and scheme list.
-# data_path: tell where *.data file stores.
-# scheme_path: tell where *.names file stores.
+
 def read(data_path, scheme_path):
+    """
+    Main method in this file, to get data list after processing and scheme list.
+
+    :param data_path: tell where *.data file stores.
+    :param scheme_path: tell where *.names file stores.
+    """
     data = read_data(data_path)
     attributes, value_type = read_scheme(scheme_path)
     data = str2numerical(data, value_type)

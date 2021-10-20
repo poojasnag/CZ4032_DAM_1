@@ -1,5 +1,7 @@
 class RuleItem:
-
+    """
+    Ruleitem class with attributes such as condset, class_label, cond_sup_count etc. Methods to claculate consup, support, conf.
+    """
     def __init__(self, cond_set, class_label, dataset):
         self.cond_set = cond_set
         self.class_label = class_label

@@ -37,6 +37,8 @@ Run the `./main.py` from the project root directory, then add flags behind the c
 - to change dataset: `--filename DATASET_NAME`
 - to run with pruning: `--prune`
 - to use multiple minsups: `--multiple`
+- Set initial minsup `--minsup 0.01`
+- Set minconf `--minconf 0.5`
 
 E.g. Running iris dataset with pruning and multiple minsups
 

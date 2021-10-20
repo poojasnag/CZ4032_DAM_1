@@ -1,4 +1,7 @@
 class Classifier_m2:
+    """
+    M2 Classifier with add and discard rule methods.
+    """
 
     def __init__(self):
         self.rule_list = list()

@@ -8,9 +8,11 @@ from cba_cb_m2 import classifier_builder_m2, is_satisfy
 from collections import Counter
 
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import classification_report
 
 class CrossValidationM2:
+    """
+    Contains main pipeline to call functions for preprocessing, rule gen, classifier building and evaluation.
+    """
     def __init__(self, data_path, scheme_path, minsup, minconf):
         self.data_path = data_path
         self.scheme_path = scheme_path
@@ -30,7 +32,7 @@ class CrossValidationM2:
 
     def get_error_rate(self, classifier, dataset, pred_labels):
         error_count = 0
-        for idx in range(len(dataset)): 
+        for idx in range(len(dataset)):
             is_satisfy_value = False
             for rule in classifier.rule_list:
                 is_satisfy_value = is_satisfy(dataset[idx], rule)
@@ -44,13 +46,6 @@ class CrossValidationM2:
                 else:
                     pred_labels.append(classifier.default_class)
         return error_count / len(dataset)
-
-
-
-    def create_train_test_ds(self, dataset, split, k):
-        train_ds = dataset[:split[k]] + dataset[split[k+1]:]
-        test_ds = dataset[split[k]:split[k+1]]
-        return train_ds, test_ds
 
     # dictionary for multiple minsup values
     def class_minsup(self, dataset, multiple=False):
@@ -82,11 +77,9 @@ class CrossValidationM2:
             start_time = time.time()
             cars = rule_generator(train_dataset, self.class_minsup(dataset, multiple=multiple), self.minconf)
 
-
             if prune:
                 cars.prune_rules(train_dataset)
                 cars.rules = cars.pruned_rules
-
 
             end_time = time.time()
             cba_rg_runtime = end_time-start_time

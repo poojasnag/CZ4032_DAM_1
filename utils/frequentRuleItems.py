@@ -1,4 +1,7 @@
 class FrequentRuleitems:
+    """
+    FrequentRuleitems instance with methods to add ruletimes as well as to append item into ruleitem.
+    """
     def __init__(self):
         self.frequent_ruleitems_set = set()
 

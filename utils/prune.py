@@ -3,12 +3,15 @@ from cba_cb_m2 import *
 import sys
 
 class Prune:
+    """
+    Pruner instance with recursive method to find valid prune rule
+    """
     def __init__(self, initial_rule, dataset):
         self.dataset = dataset
         self.min_rule_error = sys.maxsize
         self.pruned_rule = initial_rule
 
-  # prune rule recursively
+    # prune rule recursively
     def find_prune_rule(self, this_rule):
         # calculate how many errors the rule r make in the dataset
         rule_error = errorsOfRule(this_rule, self.dataset)
